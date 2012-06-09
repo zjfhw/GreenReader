@@ -9,7 +9,35 @@ RSSReader = Em.Application.create({
 
 RSSReader.SummaryListView = Em.View.extend({
   tagName: 'article',
-  classNames: ['well', 'summary']
+  classNames: ['well', 'summary'],
+  classNameBindings: ['read', 'starred'],
+  read: (function() {
+    var read;
+    return read = this.get('content').get('read');
+  }).property('RSSReader.itemController.@each.read'),
+  starred: (function() {
+    var starred;
+    return starred = this.get('content').get('starred');
+  }).property('RSSReader.itemController.@each.starred')
+});
+
+RSSReader.NavBarView = Em.View.extend({
+  itemCountBinding: 'RSSReader.dataController.itemCount',
+  unreadCountBinding: 'RSSReader.dataController.unreadCount',
+  starredCountBinding: 'RSSReader.dataController.starredCount',
+  readCountBinding: 'RSSReader.dataController.readCount',
+  showAll: function() {
+    return RSSReader.itemController.clearFilter();
+  },
+  showUnread: function() {
+    return RSSReader.itemController.filterBy('read', false);
+  },
+  showRead: function() {
+    return RSSReader.itemController.filterBy('read', true);
+  },
+  showStarred: function() {
+    return RSSReader.itemController.filterBy('starred', true);
+  }
 });
 
 RSSReader.Item = Em.Object.extend({
@@ -53,6 +81,36 @@ RSSReader.dataController = Em.ArrayController.create({
       return this.binarySearch(value, low, mid);
     }
     return mid;
+  },
+  itemCount: (function() {
+    return this.get('length');
+  }).property('@each'),
+  readCount: (function() {
+    return this.filterPorperty('read', true.get('length'));
+  }).property('@each.read'),
+  unreadCount: (function() {
+    return this.filterPorperty('read', false.get('length'));
+  }).property('each.read'),
+  starredCount: (function() {
+    return this.filterPorperty('starred', true.get('length'));
+  }).property('@each.starred')
+});
+
+RSSReader.itemController = Em.ArrayController.create({
+  content: [],
+  filterBy: function() {
+    return this.set('content', RSSReader.dataController.filterPorperty(key, value));
+  },
+  clearFilter: function() {
+    return this.set('content', RSSReader.dataController.get('content'));
+  },
+  showDefault: function() {
+    return this.filterBy('read', false);
+  },
+  markAllRead: function() {
+    return this.forEach(function(item) {
+      return item.set('read', true);
+    });
   },
   itemCount: (function() {
     return this.get('length');

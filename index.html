@@ -20,21 +20,28 @@
   <![endif]-->
 </head>
 <body>
+
+   <header>
+    <script type="text/x-handlebars">
+    {{#view RSSReader.NavBarView}}
+      <ul>
+        <li><a {{action "showAll" on="click"}}>{{itemCount}} Items</a></li>
+        <li><a {{action "showUnread" on="click"}}>{{unreadCount}} Unread</a></li>
+        <li><a {{action "showStarred" on="click"}}>{{starredCount}} Starred</a></li>
+        <li><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li>
+      </ul>
+    {{/view}}
+    </script>
+  </header>
+
   <section class="mainContent">
     <section class="summaries">
       <script type="text/x-handlebars">
-<div>
- {{#with RSSReader.dataController}}
-  {{itemCount}} items <br />
-  {{unreadCount}} are unread<br />
-  {{readCount}} are read<br />
-  {{starredCount}} are starred<br />
-  {{/with}}
-</div>
-        {{#each RSSReader.dataController}}
-        {{#view RSSReader.SummaryListView contentBinding="this"}}
-        {{content.title}} from {{content.pub_name}} on {{content.pub_date}}
-        {{/view}}
+
+        {{#each RSSReader.itemController}}
+          {{#view RSSReader.SummaryListView contentBinding="this"}}
+            {{content.title}} from {{content.pub_name}} on {{content.pub_date}}
+          {{/view}}
         {{/each}}
       </script>
     </section>
