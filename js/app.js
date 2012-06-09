@@ -53,5 +53,17 @@ RSSReader.dataController = Em.ArrayController.create({
       return this.binarySearch(value, low, mid);
     }
     return mid;
-  }
+  },
+  itemCount: (function() {
+    return this.get('length');
+  }).property('@each'),
+  readCount: (function() {
+    return this.filterPorperty('read', true.get('length'));
+  }).property('@each.read'),
+  unreadCount: (function() {
+    return this.filterPorperty('read', false.get('length'));
+  }).property('each.read'),
+  starredCount: (function() {
+    return this.filterPorperty('starred', true.get('length'));
+  }).property('@each.starred')
 });

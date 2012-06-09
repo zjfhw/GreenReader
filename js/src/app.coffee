@@ -52,24 +52,28 @@ RSSReader.dataController = Em.ArrayController.create
       return @binarySearch value,low,mid
     mid
 
-  # # property return count of items
-  # itemCount:(->@get 'length').property '@each'
+  # property return count of items
+  itemCount:(->
+    @get 'length'
+  ).property '@each'
 
-  # # property return readed count
-  # readCount:(->
-  #   @filterPorperty 'read',true .get 'length'
-  # ).property '@each.read'
+  # property return read count
+  readCount:(->
+    @filterPorperty 'read',true .get 'length'
+  ).property '@each.read'
 
-  # # ...more properties
+  # property return unread count
 
-  # unreadCount:(->
-  #   @filterPorperty 'read',false .get 'length'
-  # ).property 'each.read'
+  unreadCount:(->
+    @filterPorperty 'read',false .get 'length'
+  ).property 'each.read'
 
-  # starredCount:(->
-  #   @filterPorperty 'starred',true .get 'length'
-  # ).property '@each.starred'
+  # property return starred count
+  starredCount:(->
+    @filterPorperty 'starred',true .get 'length'
+  ).property '@each.starred'
 
+  # mark all items as read
   # markAllRead:->
   #   @forEach (item)->
   #     item.set 'read',true
