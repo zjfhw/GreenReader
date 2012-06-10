@@ -14,16 +14,24 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="css/style.css?v=2">
-
+  <link rel="stylesheet" href="js/libs/jquery.mobile-1.1.0.min.css">
   <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
+  <script src="js/libs/jquery-1.7.2.min.js"></script>
+  <script src="js/libs/jquery.mobile-1.1.0.min.js"></script>
+  <script src="js/libs/ember-0.9.8.1.min.js"></script>
 </head>
 <body>
 
-   <header>
-    <script type="text/x-handlebars">
-    {{#view RSSReader.NavBarView}}
+   
+<script type="text/x-handlebars" id="main">
+  {{#view RSSReader.HeaderView}}
+    <!-- <a {{action "refresh" on="click"}}>Refresh</a> -->
+      <h1>RSS READER</h1>
+  {{/view}}
+
+    {{#view RSSReader.NavbarView}}
       <ul>
         <li><a {{action "showAll" on="click"}}>{{itemCount}} Items</a></li>
         <li><a {{action "showUnread" on="click"}}>{{unreadCount}} Unread</a></li>
@@ -31,27 +39,20 @@
         <li><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li>
       </ul>
     {{/view}}
-    </script>
-  </header>
-
-  <section class="mainContent">
-    <section class="summaries">
-      <script type="text/x-handlebars">
-
-        {{#each RSSReader.itemController}}
-          {{#view RSSReader.SummaryListView contentBinding="this"}}
+    {{#view App.MyView}}
+    {{#collection RSSReader.SummaryListView contentBinding="RSSReader.itemController"}}
             {{content.title}} from {{content.pub_name}} on {{content.pub_date}}
-          {{/view}}
-        {{/each}}
-      </script>
-    </section>
-  </section>
+    {{/collection}}
+    {{/view}}
+</script>
+
   <!-- The missing protocol means that it will match the current protocol, either http or https. If running locally, we use the local jQuery. -->
-  <script src="js/libs/jquery-1.7.2.min.js"></script>
+  
   <!-- <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.2.min.js"><\/script>')</script> -->
-  <script src="js/libs/ember-0.9.8.1.min.js"></script>
   <script src="js/dev-helper.js"></script>
   <script src="js/plugins.js"></script>
+<script src="js/init.js"></script>
+<script src="js/jqm.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
