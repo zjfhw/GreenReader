@@ -27,23 +27,23 @@
    
 <script type="text/x-handlebars" id="main">
   {{#view RSSReader.HeaderView}}
-    <!-- <a {{action "refresh" on="click"}}>Refresh</a> -->
+      <a {{action "refresh" on="click"}}>Refresh</a>
       <h1>RSS READER</h1>
   {{/view}}
 
-    {{#view RSSReader.NavbarView}}
-      <ul>
-        <li><a {{action "showAll" on="click"}}>{{itemCount}} Items</a></li>
-        <li><a {{action "showUnread" on="click"}}>{{unreadCount}} Unread</a></li>
-        <li><a {{action "showStarred" on="click"}}>{{starredCount}} Starred</a></li>
-        <li><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li>
-      </ul>
-    {{/view}}
-    {{#view App.MyView}}
-    {{#collection RSSReader.SummaryListView contentBinding="RSSReader.itemController"}}
-            {{content.title}} from {{content.pub_name}} on {{content.pub_date}}
-    {{/collection}}
-    {{/view}}
+  {{#view RSSReader.NavbarView}}
+    <ul>
+      <li><a {{action "showAll" on="click"}}>{{itemCount}} Items</a></li>
+      <li><a {{action "showUnread" on="click"}}>{{unreadCount}} Unread</a></li>
+      <li><a {{action "showStarred" on="click"}}>{{starredCount}} Starred</a></li>
+      <li><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li>
+    </ul>
+  {{/view}}
+  {{#view App.MyView}}
+  {{#collection RSSReader.SummaryListView contentBinding="RSSReader.itemController"}}
+          {{content.title}} from {{content.pub_name}} on {{content.pub_date}}
+  {{/collection}}
+  {{/view}}
 </script>
 
   <!-- The missing protocol means that it will match the current protocol, either http or https. If running locally, we use the local jQuery. -->

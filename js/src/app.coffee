@@ -54,8 +54,12 @@ RSSReader.NavbarView.reopen
 
 # - entry detail view
 
-RSSReader.EntryView = RSSReader.PageView.extend
+RSSReader.EntryItemView = RSSReader.PageView.extend
+  active:(->
+    true
+    ).property('RSSReader.itemNavController.currentItem')
   contentBinding: 'RSSReader.itemNavController.currentItem'
+  toggleRead: 
 
 ################
 # create Model #
@@ -207,7 +211,8 @@ RSSReader.ItemNavController = Em.Object.create
     prevItem = RSSReader.itemController.content[currentIndex+1]
     if prevItem
       @select prevItem
-    
+  
+
 #############################
 # Get Items from rss source #
 #############################
