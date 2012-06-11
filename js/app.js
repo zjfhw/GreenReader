@@ -7,47 +7,6 @@ RSSReader.reopen({
   }
 });
 
-RSSReader.SummaryListView = RSSReader.ListView.extend({
-  classNameBindings: ['read', 'starred'],
-  read: (function() {
-    var read;
-    return read = this.get('content').get('read');
-  }).property('RSSReader.itemController.@each.read'),
-  starred: (function() {
-    var starred;
-    return starred = this.get('content').get('starred');
-  }).property('RSSReader.itemController.@each.starred')
-});
-
-RSSReader.HeaderView.reopen({
-  refresh: function() {
-    return RSSReader.GetItemsFromSource();
-  }
-});
-
-RSSReader.NavbarView.reopen({
-  itemCountBinding: 'RSSReader.dataController.itemCount',
-  unreadCountBinding: 'RSSReader.dataController.unreadCount',
-  starredCountBinding: 'RSSReader.dataController.starredCount',
-  readCountBinding: 'RSSReader.dataController.readCount',
-  showAll: function() {
-    return RSSReader.itemController.clearFilter();
-  },
-  showUnread: function() {
-    return RSSReader.itemController.filterBy('read', false);
-  },
-  showRead: function() {
-    return RSSReader.itemController.filterBy('read', true);
-  },
-  showStarred: function() {
-    return RSSReader.itemController.filterBy('starred', true);
-  }
-});
-
-RSSReader.EntryView = RSSReader.PageView.extend({
-  contentBinding: 'RSSReader.itemNavController.currentItem'
-});
-
 RSSReader.Item = Em.Object.extend({
   read: false,
   starred: false,
@@ -134,7 +93,7 @@ RSSReader.itemController = Em.ArrayController.create({
   }).property('@each.starred')
 });
 
-RSSReader.ItemNavController = Em.Object.create({
+RSSReader.itemNavController = Em.Object.create({
   currentItem: null,
   hasPrev: false,
   hasNext: false,
@@ -185,6 +144,105 @@ RSSReader.ItemNavController = Em.Object.create({
   }
 });
 
+RSSReader.SummaryListView = RSSReader.ListView.extend({
+  contentBinding: 'RSSReader.itemController.content'
+});
+
+RSSReader.ListItemView.reopen({
+  classNameBindings: ['read', 'starred'],
+  read: (function() {
+    var read;
+    return read = this.get('content').get('read');
+  }).property('RSSReader.itemController.@each.read'),
+  starred: (function() {
+    var starred;
+    return starred = this.get('content').get('starred');
+  }).property('RSSReader.itemController.@each.starred'),
+  click: function(evt) {
+    var content;
+    content = this.get('content');
+    RSSReader.itemNavController.select(content);
+    return $.mobile.changePage('#current-view');
+  },
+  dateFromNow: (function() {
+    return moment(this.get('content').get('pub_date')).fromNow();
+  }).property('RSSReader.itemController.@each.pub_date')
+});
+
+RSSReader.HeaderView.reopen({
+  refresh: function() {
+    return RSSReader.GetItemsFromSource();
+  }
+});
+
+RSSReader.NavbarView.reopen({
+  itemCountBinding: 'RSSReader.dataController.itemCount',
+  unreadCountBinding: 'RSSReader.dataController.unreadCount',
+  starredCountBinding: 'RSSReader.dataController.starredCount',
+  readCountBinding: 'RSSReader.dataController.readCount',
+  showAll: function() {
+    return RSSReader.itemController.clearFilter();
+  },
+  showUnread: function() {
+    return RSSReader.itemController.filterBy('read', false);
+  },
+  showRead: function() {
+    return RSSReader.itemController.filterBy('read', true);
+  },
+  showStarred: function() {
+    return RSSReader.itemController.filterBy('starred', true);
+  }
+});
+
+RSSReader.EntryItemView = RSSReader.ContentView.extend({
+  active: (function() {
+    return true;
+  }).property('RSSReader.itemNavController.currentItem'),
+  contentBinding: 'RSSReader.itemNavController.currentItem'
+});
+
+RSSReader.EntryFooterView = RSSReader.FooterView.extend({
+  'data-position': 'fixed',
+  contentBinding: 'RSSReader.itemNavController.currentItem',
+  toggleRead: function() {
+    return RSSReader.itemNavController.toggleRead();
+  },
+  toggleStar: function() {
+    return RSSReader.itemNavController.toggleStar();
+  },
+  starClass: (function() {
+    var currentItem;
+    currentItem = RSSReader.itemNavController.get('currentItem');
+    if (currentItem && currentItem.get('starred')) {
+      return 'starred';
+    }
+    return 'star-empty';
+  }).property('RSSReader.itemNavController.currentItem.starred'),
+  readClass: (function() {
+    var currentItem;
+    currentItem = RSSReader.itemNavController.get('currentItem');
+    if (currentItem && currentItem.get('read')) {
+      return 'read';
+    }
+    return 'unread';
+  }).property('RSSReader.itemNavController.currentItem.read'),
+  nextpage: function() {
+    return RSSReader.itemNavController.next();
+  },
+  prevpage: function() {
+    return RSSReader.itemNavController.prev();
+  },
+  nextDisable: (function() {
+    return !RSSReader.itemNavController.get('hasNext');
+  }).property('RSSReader.itemNavController.currentItem.next'),
+  prevDisable: (function() {
+    return !RSSReader.itemNavController.get('hasPrev');
+  }).property('RSSReader.itemNavController.currentItem.prev')
+});
+
+1;
+
+
 RSSReader.GetItemsFromSource = function() {
   var feed, feedPipeURL;
   feed = 'http://cn.engadget.com/tag/breaking+news/rss.xml';
@@ -212,7 +270,7 @@ RSSReader.GetItemsFromSource = function() {
         item.item_link = entry.link;
       }
       if (entry.description) {
-        item.short_desc = entry.description.substr(0, 128) + "...";
+        item.short_desc = $(entry.description).text().substr(0, 128) + "...";
       }
       item.pub_date = new Date(entry.pubDate);
       item.read = false;

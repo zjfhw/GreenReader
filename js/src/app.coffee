@@ -6,60 +6,10 @@ RSSReader.reopen
   ready:->
     @_super()
     # get content from rss source
-    RSSReader.GetItemsFromSource()
-
-###############
-# create View #
-###############
-
-# - Summary List
-RSSReader.SummaryListView = RSSReader.ListView.extend
-  # tagName: 'article' # view tag
-  # classNames: ['well','summary'] # view class 
-  # css class binding to read and starred
-  classNameBindings: ['read','starred']
-  read:(->
-    read = @get('content').get 'read'
-  ).property('RSSReader.itemController.@each.read')
-
-  starred:(->
-    starred = @get('content').get 'starred'
-  ).property 'RSSReader.itemController.@each.starred'
-
-# - Header
-RSSReader.HeaderView.reopen
-  refresh:->
-    RSSReader.GetItemsFromSource()
-
-# - NavBar
-RSSReader.NavbarView.reopen
-  # property binding
-  itemCountBinding:'RSSReader.dataController.itemCount'
-  unreadCountBinding:'RSSReader.dataController.unreadCount'
-  starredCountBinding:'RSSReader.dataController.starredCount'
-  readCountBinding:'RSSReader.dataController.readCount'
-
-  # Actions
-  showAll:->
-    RSSReader.itemController.clearFilter()
-
-  showUnread:->
-    RSSReader.itemController.filterBy 'read',false
-
-  showRead:->
-    RSSReader.itemController.filterBy 'read',true
     
-  showStarred:->
-    RSSReader.itemController.filterBy 'starred',true
+    RSSReader.GetItemsFromSource()
 
-# - entry detail view
 
-RSSReader.EntryItemView = RSSReader.PageView.extend
-  active:(->
-    true
-    ).property('RSSReader.itemNavController.currentItem')
-  contentBinding: 'RSSReader.itemNavController.currentItem'
-  toggleRead: 
 
 ################
 # create Model #
@@ -174,7 +124,7 @@ RSSReader.itemController = Em.ArrayController.create
 
 
 # Item Nav Controller
-RSSReader.ItemNavController = Em.Object.create
+RSSReader.itemNavController = Em.Object.create
   currentItem: null
   hasPrev: false
   hasNext: false
@@ -212,6 +162,99 @@ RSSReader.ItemNavController = Em.Object.create
     if prevItem
       @select prevItem
   
+###############
+# create View #
+###############
+
+# - Summary List
+RSSReader.SummaryListView = RSSReader.ListView.extend
+  contentBinding : 'RSSReader.itemController.content'
+  
+  # tagName: 'article' # view tag
+  # classNames: ['well','summary'] # view class 
+  # css class binding to read and starred
+  
+RSSReader.ListItemView.reopen
+  classNameBindings: ['read','starred']
+  read:(->
+    read = @get('content').get 'read'
+  ).property('RSSReader.itemController.@each.read')
+
+  starred:(->
+    starred = @get('content').get 'starred'
+  ).property 'RSSReader.itemController.@each.starred'
+
+  click:(evt)->
+    content = @get 'content'
+    RSSReader.itemNavController.select content
+    $.mobile.changePage '#current-view'
+  dateFromNow:(->
+    moment(@get('content').get 'pub_date').fromNow()
+  ).property 'RSSReader.itemController.@each.pub_date'
+# - Header
+RSSReader.HeaderView.reopen
+  refresh:->
+    RSSReader.GetItemsFromSource()
+
+# - NavBar
+RSSReader.NavbarView.reopen
+  # property binding
+  itemCountBinding:'RSSReader.dataController.itemCount'
+  unreadCountBinding:'RSSReader.dataController.unreadCount'
+  starredCountBinding:'RSSReader.dataController.starredCount'
+  readCountBinding:'RSSReader.dataController.readCount'
+
+  # Actions
+  showAll:->
+    RSSReader.itemController.clearFilter()
+
+  showUnread:->
+    RSSReader.itemController.filterBy 'read',false
+
+  showRead:->
+    RSSReader.itemController.filterBy 'read',true
+    
+  showStarred:->
+    RSSReader.itemController.filterBy 'starred',true
+
+# - entry detail view
+
+RSSReader.EntryItemView = RSSReader.ContentView.extend
+  active:(->
+    true
+    ).property('RSSReader.itemNavController.currentItem')
+  contentBinding: 'RSSReader.itemNavController.currentItem'
+  
+RSSReader.EntryFooterView = RSSReader.FooterView.extend
+  'data-position':'fixed'
+  contentBinding: 'RSSReader.itemNavController.currentItem'
+  toggleRead: ->
+    RSSReader.itemNavController.toggleRead()
+  toggleStar:->
+    RSSReader.itemNavController.toggleStar()
+  starClass:(->
+    currentItem = RSSReader.itemNavController.get 'currentItem'
+    if currentItem and currentItem.get 'starred'
+      return 'starred'
+    'star-empty'
+  ).property 'RSSReader.itemNavController.currentItem.starred'
+  readClass:(->
+    currentItem = RSSReader.itemNavController.get 'currentItem'
+    if currentItem and currentItem.get 'read'
+      return 'read'
+    'unread'
+  ).property 'RSSReader.itemNavController.currentItem.read'
+  nextpage:->
+    RSSReader.itemNavController.next()
+  prevpage:->
+    RSSReader.itemNavController.prev()
+  nextDisable:(->
+    !RSSReader.itemNavController.get 'hasNext'
+  ).property 'RSSReader.itemNavController.currentItem.next'
+  prevDisable:(->
+    !RSSReader.itemNavController.get 'hasPrev'
+  ).property 'RSSReader.itemNavController.currentItem.prev'
+1  
 
 #############################
 # Get Items from rss source #
@@ -248,8 +291,9 @@ RSSReader.GetItemsFromSource = ->
       else
         item.item_link = entry.link
       # Ensure the summary is less than 128 characters
+      # console.log entry.description
       if entry.description
-          item.short_desc = entry.description.substr(0, 128) + "..."
+          item.short_desc = $(entry.description).text().substr(0, 128) + "..."
       item.pub_date = new Date entry.pubDate
       item.read = false
       item.key = item.item_id

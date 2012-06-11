@@ -38,13 +38,21 @@ App.ContentView = App.MobileBaseView.extend({
     'data-role': 'content'
 });
 
-App.FooterView = App.MobileBaseView.extend({
+App.FooterView = App.ToolbarBaseView.extend({
     'data-role': 'footer'
 });
-
 App.ListItemView = Em.View.extend({
-    tagName: 'li'
+    tagName: 'li',
 });
+
+// App.ListView = App.MobileBaseView.extend({
+//     // attributeBindings: ['data-role'],
+//     'data-role':'listview',
+//     tagName: 'ul',
+//   change:function(){
+//   console.log('change',this)}
+//     // itemViewClass: App.ListItemView,
+// });
 
 App.ListView = Em.CollectionView.extend({
     attributeBindings: ['data-role'],
@@ -120,11 +128,16 @@ App.MyView = App.ContentView.extend({
 });
 
 App.MainView = App.PageView.extend({
-    templateName:'main',
-    id: 'main-view',
-    didInsertElement: function() {
-        $.mobile.changePage(this.$());
+  templateName:'main',
+  elementId: 'main-view',
+  didInsertElement: function() {
+    $.mobile.changePage(this.$());
     }
+});
+
+App.CurrentView = App.PageView.extend({
+    templateName:'current',
+    elementId: 'current-view'
 });
 
 $(document).bind('mobileinit', function() {
@@ -141,6 +154,14 @@ $(document).bind('pageinit', function(){
         v = App.MainView.create();
         App.set('mainView',v);
         v.append();
+    }
+var c = App.get('currentView');
+
+    if (!c) {
+        console.log('current not created');
+        c = App.CurrentView.create();
+        App.set('currentView',c);
+        c.append();
     }
 });
 
