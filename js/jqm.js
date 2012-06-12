@@ -61,13 +61,13 @@ App.ListView = Em.CollectionView.extend({
     itemViewClass: App.ListItemView,
 
     // Observe the attached content array's length and refresh the listview on the next RunLoop tick.
-    contentLengthDidChange: function(){
-        console.log('listview changed');
-        var _self = this;
-        Em.run.next(function() {
-            _self.$().listview('refresh');
-        });
-    }.observes('content.length')
+    // contentLengthDidChange: function(){
+    //     console.log('listview changed');
+    //     var _self = this;
+    //     Em.run.next(function() {
+    //         _self.$().listview('refresh');
+    //     });
+    // }.observes('content.length')
 
 });
 
@@ -132,9 +132,9 @@ App.MainView = App.PageView.extend({
    'data-url':'',
   templateName:'main',
   elementId: 'main-view',
-  didInsertElement: function() {
-    $.mobile.changePage(this.$());
-    }
+  // didInsertElement: function() {
+    // $.mobile.changePage(this.$());
+    // }
 });
 
 App.CurrentView = App.PageView.extend({
@@ -144,12 +144,12 @@ attributeBindings:['data-url'],
     elementId: 'current-view'
 });
 
-$(document).bind('mobileinit', function() {
-    $.mobile.touchOverflowEnabled = true;
-});
+// $(document).bind('mobileinit', function() {
+//     $.mobile.touchOverflowEnabled = true;
+// });
 
 
-$(document).bind('pageinit', function(){
+$(function(){
     console.log('pageinit');
     var v = App.get('mainView');
 
@@ -167,9 +167,6 @@ var c = App.get('currentView');
         App.set('currentView',c);
         c.append();
     }
-  $('#current-view').swipeleft(function(){ RSSReader.itemNavController.next();
-                                  }
-                                )
- 
+
 });
 

@@ -14,20 +14,41 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   
-  <link rel="stylesheet" href="js/libs/jquery.mobile-1.1.0.min.css">
+<style type="text/css" media="screen">@import "js/libs/jqtouch/themes/css/jqtouch.css";</style>
   <link rel="stylesheet" href="css/style.css?v=2">
+
   <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
-  <script src="js/libs/jquery-1.7.2.min.js"></script>
+   <script type="text/javascript" src="cordova-1.7.0.js"></script>
 <script src="https://raw.github.com/timrwood/moment/1.6.2/min/moment.min.js"></script>
-  <script src="js/libs/jquery.mobile-1.1.0.min.js"></script>
+ <script src="js/libs/jquery-1.7.2.min.js"></script>
+  <script src="js/libs/jqtouch/src/jqtouch.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/libs/jqtouch/src/jqtouch-jquery.min.js" type="text/javascript" charset="utf-8"></script>
+        
   <script src="js/libs/ember-0.9.8.1.min.js"></script>
   <script type="text/javascript" src="js/libs/lawnchair-0.6.1.min.js"></script>
-  <script type="text/javascript" src="cordova-1.7.0.js"></script>
+ 
+  <script type="text/javascript" charset="utf-8">
+            $.jQTouch({
+            icon: 'jqtouch.png',
+           statusBar: 'black-translucent',
+           preloadImages: []
+            });
+            </script>
 </head>
 <body>
-
+ <div id="home" class="edgetoedge">
+                <div class="toolbar">
+                    <h1>Accounts</h1>
+                    <!-- <a class="button slideup" id="infoButton" href="#about">About</a> -->
+                </div>
+                <ul class="edgetoedge">
+                    <li><a href="#main-view">Home</a></li>
+                    <li><a href="#mailbox">Work</a></li>
+                    <li><a href="#mailbox">MobileMe</a></li>
+                </ul>
+            </div>
   <script type="text/x-handlebars" id="main">
   {{#view RSSReader.HeaderView}}
       <a {{action "refresh" on="click"}}>Refresh</a>
@@ -44,10 +65,12 @@
   {{/view}}
 
   {{#collection RSSReader.SummaryListView}}
-    <h3 style="white-space:normal;">{{content.title}}</h3>
-	<!-- <p style="white-space:normal;"><strong>{{content.pub_author}}</strong></p> -->
-	<p style="white-space:normal;"><small>{{content.short_desc}}</small></p>
-	<p style="width:auto;" class="ui-li-aside"><strong>{{dateFromNow}}</strong></p>
+    <a href="#current-view"> 
+    <strong>{{content.title}}</strong>
+	<!-- <p><strong>{{content.pub_author}}</strong></p> -->
+<p><em style="white-space:normal;">{{content.short_desc}}</em></p>
+<small>{{dateFromNow}}</small>
+</a>
 {{/collection}}
 
 </script>
