@@ -2,14 +2,26 @@
 # create app object #
 #####################
 
+# local storage
+# new lawnchair ->
+
+nimei='entries'
+store = Lawnchair
+  name:nimei
+  record:'entry'
+  ,->
+ 
+pp = Lawnchair
+  name:'piaopiao'
+  record:'entry'
+  ,->
+    @save({entry:'meide'})
+# app
 RSSReader.reopen
   ready:->
     @_super()
     # get content from rss source
-    
-    RSSReader.GetItemsFromSource()
-
-
+    RSSReader.GetItemsFromStore()
 
 ################
 # create Model #
@@ -41,7 +53,7 @@ RSSReader.dataController = Em.ArrayController.create
       length = @get ('length')
       idx = @binarySearch (Date.parse (item.get 'pub_date')),0,length
       @insertAt idx,item
-      true
+      return true
     else
       false
       
@@ -144,13 +156,18 @@ RSSReader.itemNavController = Em.Object.create
       read = !@currentItem.get 'read'
     @currentItem.set 'read',read
     key = @currentItem.get 'item_id'
+    store.get key,(entry)->
+      entry.read = read
+      store.save entry
 
   toggleStar:(star) ->
     if star is undefined
       star = !@currentItem.get 'starred'
     @currentItem.set 'starred',star
     key = @currentItem.get 'item_id'
-
+    store.get key,(entry)->
+      entry.starred = star
+      store.save entry
   next:->
     currentIndex = RSSReader.itemController.content.indexOf @get 'currentItem'
     nextItem = RSSReader.itemController.content[currentIndex+1]
@@ -187,14 +204,14 @@ RSSReader.ListItemView.reopen
   click:(evt)->
     content = @get 'content'
     RSSReader.itemNavController.select content
-    $.mobile.changePage '#current-view'
+    $.mobile.changePage '#current-view',{transition:'slide'}
   dateFromNow:(->
     moment(@get('content').get 'pub_date').fromNow()
   ).property 'RSSReader.itemController.@each.pub_date'
 # - Header
 RSSReader.HeaderView.reopen
   refresh:->
-    RSSReader.GetItemsFromSource()
+    RSSReader.GetItemsFromStore()
 
 # - NavBar
 RSSReader.NavbarView.reopen
@@ -253,13 +270,21 @@ RSSReader.EntryFooterView = RSSReader.FooterView.extend
   ).property 'RSSReader.itemNavController.currentItem.next'
   prevDisable:(->
     !RSSReader.itemNavController.get 'hasPrev'
-  ).property 'RSSReader.itemNavController.currentItem.prev'
-1  
+  ).property 'RSSReader.itemNavController.currentItem.prev' 
 
 #############################
 # Get Items from rss source #
 #############################
+RSSReader.GetItemsFromStore = ->
+  items = store.all (arr)->
+    arr.forEach (entry)->
+      item = RSSReader.Item.create entry
+      RSSReader.dataController.addItem item
+    console.log 'entries load form local:', arr.length
 
+  RSSReader.itemController.showDefault()
+  RSSReader.GetItemsFromSource()
+  
 RSSReader.GetItemsFromSource = ->
   # feed source
   feed = 'http://cn.engadget.com/tag/breaking+news/rss.xml'
@@ -298,8 +323,8 @@ RSSReader.GetItemsFromSource = ->
       item.read = false
       item.key = item.item_id
 
-      RSSReader.dataController.addItem RSSReader.Item.create item
-
+      if RSSReader.dataController.addItem RSSReader.Item.create item
+        store.save item
     RSSReader.itemController.showDefault()
     
 

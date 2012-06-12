@@ -128,6 +128,8 @@ App.MyView = App.ContentView.extend({
 });
 
 App.MainView = App.PageView.extend({
+  attributeBindings:['data-url'],
+   'data-url':'',
   templateName:'main',
   elementId: 'main-view',
   didInsertElement: function() {
@@ -136,6 +138,8 @@ App.MainView = App.PageView.extend({
 });
 
 App.CurrentView = App.PageView.extend({
+attributeBindings:['data-url'],
+   'data-url':'current',
     templateName:'current',
     elementId: 'current-view'
 });
@@ -163,5 +167,9 @@ var c = App.get('currentView');
         App.set('currentView',c);
         c.append();
     }
+  $('#current-view').swipeleft(function(){ RSSReader.itemNavController.next();
+                                  }
+                                )
+ 
 });
 

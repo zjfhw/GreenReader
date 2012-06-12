@@ -23,11 +23,12 @@
 <script src="https://raw.github.com/timrwood/moment/1.6.2/min/moment.min.js"></script>
   <script src="js/libs/jquery.mobile-1.1.0.min.js"></script>
   <script src="js/libs/ember-0.9.8.1.min.js"></script>
+  <script type="text/javascript" src="js/libs/lawnchair-0.6.1.min.js"></script>
+  <script type="text/javascript" src="cordova-1.7.0.js"></script>
 </head>
 <body>
 
-   
-<script type="text/x-handlebars" id="main">
+  <script type="text/x-handlebars" id="main">
   {{#view RSSReader.HeaderView}}
       <a {{action "refresh" on="click"}}>Refresh</a>
       <h1>RSS READER</h1>
@@ -41,14 +42,14 @@
       <li><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li>
     </ul>
   {{/view}}
-  {{#view App.MyView}}
+
   {{#collection RSSReader.SummaryListView}}
     <h3 style="white-space:normal;">{{content.title}}</h3>
 	<!-- <p style="white-space:normal;"><strong>{{content.pub_author}}</strong></p> -->
 	<p style="white-space:normal;"><small>{{content.short_desc}}</small></p>
 	<p style="width:auto;" class="ui-li-aside"><strong>{{dateFromNow}}</strong></p>
 {{/collection}}
-    {{/view}}
+
 </script>
 
 <script type="text/x-handlebars" id="current">
@@ -74,10 +75,7 @@
               <a {{action "nextpage" on="click"}} {{bindAttr disabled="nextDisable"}}>Next</a>
   {{/view}}
 </script>
-  <!-- The missing protocol means that it will match the current protocol, either http or https. If running locally, we use the local jQuery. -->
-  
-  <!-- <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.2.min.js"><\/script>')</script> -->
-  <script src="js/dev-helper.js"></script>
+ <script src="js/dev-helper.js"></script>
   <script src="js/plugins.js"></script>
 <script src="js/init.js"></script>
 <script src="js/jqm.js"></script>
