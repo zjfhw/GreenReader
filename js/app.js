@@ -185,11 +185,10 @@ RSSReader.ListItemView.reopen({
   }).property('RSSReader.itemController.@each.starred'),
   click: function(evt) {
     var content;
+    console.log('select', this.get('content'));
     content = this.get('content');
     RSSReader.itemNavController.select(content);
-    return $.mobile.changePage('#current-view', {
-      transition: 'slide'
-    });
+    return jQT.goTo('#current-view');
   },
   dateFromNow: (function() {
     return moment(this.get('content').get('pub_date')).fromNow();

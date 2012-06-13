@@ -91,10 +91,13 @@ a:hover { color: #036; }
 
 .read {
   color:gray;
+  background-color: darkgrey;
 }
 
 
-
+img {
+  max-width:300px;
+}
 
 
 

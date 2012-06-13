@@ -29,7 +29,7 @@ App.ToolbarBaseView = App.MobileBaseView.extend({
 });
 
 App.HeaderView = App.ToolbarBaseView.extend({
-    'data-role': 'header'
+    classNames:['toolbar'] 
 });
 App.NavbarView = App.MobileBaseView.extend({
     'data-role': 'navbar'
@@ -55,8 +55,7 @@ App.ListItemView = Em.View.extend({
 // });
 
 App.ListView = Em.CollectionView.extend({
-    attributeBindings: ['data-role'],
-    'data-role':'listview',
+  classNames:['plastic','view'],
     tagName: 'ul',
     itemViewClass: App.ListItemView,
 
@@ -76,39 +75,6 @@ App.Button = Em.Button.extend({
 });
 
 // App Classes
-
-App.sampleFixture = [
-    Em.Object.create({
-        title: 'Broken Bells',
-        description: 'Broken Bells',
-        thumbnail: 'http://jquerymobile.com/demos/1.0/docs/lists/images/album-bb.jpg'
-    }),
-    Em.Object.create({
-        title: 'Broken Bells',
-        description: 'Broken Bells',
-        thumbnail: 'http://jquerymobile.com/demos/1.0/docs/lists/images/album-bb.jpg'
-    }),
-    Em.Object.create({
-        title: 'Broken Bells',
-        description: 'Broken Bells',
-        thumbnail: 'http://jquerymobile.com/demos/1.0/docs/lists/images/album-bb.jpg'
-    }),
-    Em.Object.create({
-        title: 'Broken Bells',
-        description: 'Broken Bells',
-        thumbnail: 'http://jquerymobile.com/demos/1.0/docs/lists/images/album-bb.jpg'
-    }),
-    Em.Object.create({
-        title: 'Broken Bells',
-        description: 'Broken Bells',
-        thumbnail: 'http://jquerymobile.com/demos/1.0/docs/lists/images/album-bb.jpg'
-    }),
-    Em.Object.create({
-        title: 'Broken Bells',
-        description: 'Broken Bells',
-        thumbnail: 'http://jquerymobile.com/demos/1.0/docs/lists/images/album-bb.jpg'
-    })
-];
 
 App.listController = Em.ArrayProxy.create({
     content: App.sampleFixture,
@@ -157,7 +123,7 @@ $(function(){
         console.log('main not created');
         v = App.MainView.create();
         App.set('mainView',v);
-        v.append();
+        v.appendTo($('#jqt'));
     }
 var c = App.get('currentView');
 
@@ -165,8 +131,11 @@ var c = App.get('currentView');
         console.log('current not created');
         c = App.CurrentView.create();
         App.set('currentView',c);
-        c.append();
+        c.appendTo($('#jqt'));
     }
+$('#swipeme').swipe(function(evt, info) {
+    console.log(info.direction);
 
+                });
 });
 

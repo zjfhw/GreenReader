@@ -202,9 +202,11 @@ RSSReader.ListItemView.reopen
   ).property 'RSSReader.itemController.@each.starred'
 
   click:(evt)->
+    console.log 'select', @get 'content'
     content = @get 'content'
     RSSReader.itemNavController.select content
-    $.mobile.changePage '#current-view',{transition:'slide'}
+    jQT.goTo '#current-view'
+    # $.mobile.changePage '#current-view',{transition:'slide'}
   dateFromNow:(->
     moment(@get('content').get 'pub_date').fromNow()
   ).property 'RSSReader.itemController.@each.pub_date'

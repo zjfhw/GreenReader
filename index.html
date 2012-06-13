@@ -1,107 +1,162 @@
 <!doctype html>
 <!--[if lt IE 7 ]> <html lang="en" class="ie6"> <![endif]--> <!--[if IE 7 ]>    <html lang="en" class="ie7"> <![endif]--> <!--[if IE 8 ]>    <html lang="en" class="ie8"> <![endif]--> <!--[if IE 9 ]>    <html lang="en" class="ie9"> <![endif]-->
 <!--[if (gt IE 9)|!(IE)]><!--> <html lang="en"> <!--<![endif]-->
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <title>RSS Reader</title>
-  <meta name="description" content="">
-  <meta name="author" content="">
+    <title>RSS Reader</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  
-<style type="text/css" media="screen">@import "js/libs/jqtouch/themes/css/jqtouch.css";</style>
-  <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <!-- <link rel="stylesheet" href="js/libs/jquery.mobile-1.1.0.min.css" type="text/css" media="screen" /> -->
+    <style type="text/css" media="screen">@import "js/libs/jqtouch/jqtouch/jqtouch.css";</style>
+    <style type="text/css" media="screen">@import "js/libs/jqtouch/themes/jqt/theme.css";</style>
+    <style type="text/css" media="screen">@import "js/libs/jqtouch/extensions/jqt.bars/jqt.bars.css";</style>
+    <style type="text/css" media="screen">@import "js/libs/jqtouch/extensions/jqt.bars/themes/jqt/theme.css";</style>
 
-  <!--[if lt IE 9]>
-  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-  <![endif]-->
-   <script type="text/javascript" src="cordova-1.7.0.js"></script>
-<script src="https://raw.github.com/timrwood/moment/1.6.2/min/moment.min.js"></script>
- <script src="js/libs/jquery-1.7.2.min.js"></script>
-  <script src="js/libs/jqtouch/src/jqtouch.min.js" type="text/javascript" charset="utf-8"></script>
-  <script src="js/libs/jqtouch/src/jqtouch-jquery.min.js" type="text/javascript" charset="utf-8"></script>
-        
-  <script src="js/libs/ember-0.9.8.1.min.js"></script>
-  <script type="text/javascript" src="js/libs/lawnchair-0.6.1.min.js"></script>
- 
-  <script type="text/javascript" charset="utf-8">
-            $.jQTouch({
-            icon: 'jqtouch.png',
-           statusBar: 'black-translucent',
-           preloadImages: []
-            });
-            </script>
-</head>
-<body>
- <div id="home" class="edgetoedge">
-                <div class="toolbar">
-                    <h1>Accounts</h1>
-                    <!-- <a class="button slideup" id="infoButton" href="#about">About</a> -->
-                </div>
-                <ul class="edgetoedge">
-                    <li><a href="#main-view">Home</a></li>
-                    <li><a href="#mailbox">Work</a></li>
-                    <li><a href="#mailbox">MobileMe</a></li>
-                </ul>
+    <!--[if lt IE 9]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    <script type="text/javascript" src="cordova-1.7.0.js"></script>
+    <script src="js/libs/moment.min.js"></script>
+    <script src="js/libs/jquery-1.7.2.min.js"></script>
+    <!-- <script src="js/libs/jquery.mobile-1.1.0.min.js"></script> -->
+    <script src="js/libs/jqtouch/jqtouch/jqtouch.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/libs/jqtouch/extensions/jqt.bars/jqt.bars.js" type="text/javascript" charset="utf-8"></script>
+    <!-- <script src="js/libs/jqtouch/extensions/jqt.autotitles.js" type="text/javascript" charset="utf-8"></script> -->
+    <script src="js/libs/jqtouch/extensions/jqt.autotitles.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/libs/ember-0.9.8.1.min.js"></script>
+    <script type="text/javascript" src="js/libs/lawnchair-0.6.1.min.js"></script>
+    <!-- <script type="text/javascript" scr = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"> -->
+      
+    </script>
+    <script type="text/javascript" charset="utf-8">
+      var jQT = $.jQTouch({
+      });
+    </script>
+  </head>
+  <body>
+    tabbar
+    <div id="tabbar">
+      <div>
+        <ul>
+          <li>
+            <!-- Action from the href attribute -->
+            <a href="#" animation="slidedown">
+              <strong>Alert1</strong>
+            </a>
+          </li>
+          <li>
+            <!-- Action from the href attribute -->
+            <a href="#" animation="slidedown">
+              <strong>Alert1</strong>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+    </div>
+
+    <!-- jqt content -->
+    <div id="jqt">
+      <div id="ui" class="current">
+        <div class="toolbar">
+          <h1>UI Demos</h1>
+        </div>
+        <div class="s-scrollwrapper" momentum="false" vScrollbar="false">
+          <div>
+            <div class="info">
+              <p>Add this page to your home screen to view the tabbar demo, custom icon, startup screen and full screen mode.</p>
             </div>
-  <script type="text/x-handlebars" id="main">
-  {{#view RSSReader.HeaderView}}
-      <a {{action "refresh" on="click"}}>Refresh</a>
-      <h1>RSS READER</h1>
-  {{/view}}
+            <h2>Lists</h2>
+            <ul class="rounded">
+              <li class="arrow"><a href="#main-view">engadget</a></li>
+              <li class="arrow"><a href="#edge">Edge to Edge</a></li>
+              <li class="arrow"><a href="#plastic">Plastic</a></li>
+              <li class="arrow"><a href="#metal">Metal</a></li>
+            </ul>
+            <h2>Buttons</h2>
+            <ul class="rounded">
+              <li class="arrow"><a href="#buttons">Buttons</a></li>
+            </ul>
+            <h2>Forms</h2>
+            <ul class="rounded">
+              <li class="arrow"><a href="#forms">Forms</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-  {{#view RSSReader.NavbarView}}
-    <ul>
-      <li><a {{action "showAll" on="click"}}>{{itemCount}} Items</a></li>
-      <li><a {{action "showUnread" on="click"}}>{{unreadCount}} Unread</a></li>
-      <li><a {{action "showStarred" on="click"}}>{{starredCount}} Starred</a></li>
-      <li><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li>
-    </ul>
-  {{/view}}
+      
+      <script type="text/x-handlebars" id="main">
 
-  {{#collection RSSReader.SummaryListView}}
-    <a href="#current-view"> 
-    <strong>{{content.title}}</strong>
-	<!-- <p><strong>{{content.pub_author}}</strong></p> -->
-<p><em style="white-space:normal;">{{content.short_desc}}</em></p>
-<small>{{dateFromNow}}</small>
-</a>
-{{/collection}}
+        {{#view RSSReader.HeaderView}}
+        
+        <a href="#" class="back">返回</a>
+        
+        <h1></h1>
+        <a {{action "refresh" on="click"}} class="button">Refresh</a>
+        {{/view}}
 
-</script>
 
-<script type="text/x-handlebars" id="current">
-  {{#view RSSReader.HeaderView}}
-  <a href="#main-view">Back</a>
-      <h1>Detail</h1>
-  {{/view}}
-  {{#if RSSReader.itemNavController.currentItem}}
+        {{#view RSSReader.NavbarView}}
+        <nav>
+        <ul>
+          <li><a {{action "showAll" on="click"}}>{{itemCount}} Items</a></li>
+          <li><a {{action "showUnread" on="click"}}>{{unreadCount}} Unread</a></li>
+          <li><a {{action "showStarred" on="click"}}>{{starredCount}} Starred</a></li>
+          <li><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li>
+        </ul>
+        </nav>
+        {{/view}}
+<div class="s-scrollwrapper" momentum="false" vScrollbar="false">
+          <div>
+        {{#collection RSSReader.SummaryListView}}
+       
+          {{content.title}}
+          <!-- <p><strong>{{content.pub_author}}</strong></p> -->
+          <p><em style="white-space:normal;white-space: normal;font-size: 14px;color: yellowGreen;">{{content.short_desc}}</em></p>
+          <small>{{dateFromNow}}</small>
+        {{/collection}}
+</div></div>
+      </script>
 
-      {{#view RSSReader.EntryItemView}}
-          <h1>{{content.title}}</h1>
-              <span class="author">{{content.pub_author}}</span> - <span class="pub-name">{{content.pub_name}}</span>
-              <hr />
-              <p class="post-content">{{{content.content}}}</p>
+      <script type="text/x-handlebars" id="current">
+        {{#view RSSReader.HeaderView}}
+        <a href="#" class="back">Back</a>
+        <h1>Detail</h1>
+        {{/view}}
+        {{#if RSSReader.itemNavController.currentItem}}
+          <div id="swipeme">
+        {{#view RSSReader.EntryItemView}}
+        <h1>{{content.title}}</h1>
+        <span class="author">{{content.pub_author}}</span>
+        <hr />
+        <p class="post-content">{{{content.content}}}</p>
+        
+        
+        {{/view}}
+        {{/if}}
+        {{#view RSSReader.EntryFooterView}}
+        <a {{action "toggleStar" on="click"}} {{bindAttr class="starClass"}}>Star</a>
+        <a {{action "toggleRead" on="click"}} {{bindAttr class="readClass"}}>Mark</a>
+        <a {{action "prevpage" on="click"}} {{bindAttr disabled="prevDisable"}}>Prev</a>
+        <a {{action "nextpage" on="click"}} class="slideup" {{bindAttr disabled="nextDisable"}}>Next</a>
+        {{/view}}
+</div>
 
-              
-       {{/view}}
-   {{/if}}
-  {{#view RSSReader.EntryFooterView}}
-              <a {{action "toggleStar" on="click"}} {{bindAttr class="starClass"}}>Star</a>
-              <a {{action "toggleRead" on="click"}} {{bindAttr class="readClass"}}>Mark</a>
-              <a {{action "prevpage" on="click"}} {{bindAttr disabled="prevDisable"}}>Prev</a>
-              <a {{action "nextpage" on="click"}} {{bindAttr disabled="nextDisable"}}>Next</a>
-  {{/view}}
-</script>
- <script src="js/dev-helper.js"></script>
-  <script src="js/plugins.js"></script>
-<script src="js/init.js"></script>
-<script src="js/jqm.js"></script>
-  <script src="js/app.js"></script>
-</body>
+      </script>
+    </div>
+    
+    <script src="js/dev-helper.js"></script>
+    <script src="js/plugins.js"></script>
+    <script src="js/init.js"></script>
+    <script src="js/jqm.js"></script>
+    <script src="js/app.js"></script>
+  </body>
 </html>
