@@ -55,9 +55,11 @@ var m = Math,
 		var that = this,
 			doc = document,
 			i;
-
+   
 		that.wrapper = typeof el == 'object' ? el : doc.getElementById(el);
+    console.log(el,that)
 		that.wrapper.style.overflow = 'hidden';
+    
 		that.scroller = that.wrapper.children[0];
 
 		// Default options

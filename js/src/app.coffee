@@ -21,7 +21,14 @@ RSSReader.reopen
   ready:->
     @_super()
     # get content from rss source
+    
     RSSReader.GetItemsFromStore()
+    RSSReader.itemController.showDefault()
+    # RSSReader.pageinit()
+    jQT.initbars()
+    
+  
+    # RSSReader.initPullToRefresh()
 
 ################
 # create Model #
@@ -175,7 +182,7 @@ RSSReader.itemNavController = Em.Object.create
       @select nextItem
   prev:->
     currentIndex = RSSReader.itemController.content.indexOf @get 'currentItem'
-    prevItem = RSSReader.itemController.content[currentIndex+1]
+    prevItem = RSSReader.itemController.content[currentIndex-1]
     if prevItem
       @select prevItem
   
@@ -186,12 +193,16 @@ RSSReader.itemNavController = Em.Object.create
 # - Summary List
 RSSReader.SummaryListView = RSSReader.ListView.extend
   contentBinding : 'RSSReader.itemController.content'
-  
+  templateName: 'main'
+  didInsertElement:->
+    console.log 'main insert'
+    RSSReader.pullinit()
   # tagName: 'article' # view tag
   # classNames: ['well','summary'] # view class 
   # css class binding to read and starred
   
 RSSReader.ListItemView.reopen
+  templateName: 'current'
   classNameBindings: ['read','starred']
   read:(->
     read = @get('content').get 'read'
@@ -243,6 +254,10 @@ RSSReader.EntryItemView = RSSReader.ContentView.extend
     true
     ).property('RSSReader.itemNavController.currentItem')
   contentBinding: 'RSSReader.itemNavController.currentItem'
+  viewDidChange:(->
+    console.log 'view change'
+    jQT.setPageHeight()
+  ).observes 'content'
   
 RSSReader.EntryFooterView = RSSReader.FooterView.extend
   'data-position':'fixed'
@@ -283,9 +298,7 @@ RSSReader.GetItemsFromStore = ->
       item = RSSReader.Item.create entry
       RSSReader.dataController.addItem item
     console.log 'entries load form local:', arr.length
-
-  RSSReader.itemController.showDefault()
-  RSSReader.GetItemsFromSource()
+  # RSSReader.GetItemsFromSource()
   
 RSSReader.GetItemsFromSource = ->
   # feed source
@@ -327,8 +340,61 @@ RSSReader.GetItemsFromSource = ->
 
       if RSSReader.dataController.addItem RSSReader.Item.create item
         store.save item
-    RSSReader.itemController.showDefault()
-    
+    jQT.initbars()
 
+## Page Init
+# RSSReader.pageinit = ->
+$(->
+  $('.swipe').swipe (evt, info)->
+    console.log 'tap', info.direction
+    if info.direction is 'right'
+      RSSReader.itemNavController.prev()
+    else if info.direction is 'left'
+      RSSReader.itemNavController.next()
+  # jQT.initbars()
+  # console.log 'pageinit'
+  v = RSSReader.get 'mainView'
 
+  if !v
+    console.log 'main not created'
+    v = App.MainView.create()
+    RSSReader.set 'mainView',v
+    v.appendTo $('#jqt')
+  c = RSSReader.get 'currentView'
 
+  if !c
+    console.log 'current not created'
+    c = RSSReader.CurrentView.create()
+    RSSReader.set('currentView',c)
+    c.appendTo $('#jqt')  
+)
+RSSReader.pullinit = ->
+  console.log 'mainview ready'
+  pullDownEl = $('#pullDown')
+  pullDownOffset = pullDownEl.height()
+  # pullUpEl = document.getElementById('pullUp');	
+  # pullUpOffset = pullUpEl.offsetHeight;
+  console.log 'pull start',$('#pulltoupdate')
+  pullToRefresh = new iScroll 'pulltoupdate',{
+    userTransition:true
+    topOffset:pullDownOffset
+    onRefresh:->
+      console.log 'refresh'
+      if pullDownEl.hasClass 'loading'
+        pullDownEl.className=''
+        pullDownEl.find('pullDownLabel').html('PullDown to Refresh')
+    onScrollMove:->
+      console.log 'move'
+      if @y > 5 and !pullDownEl.hasClass 'flip'
+        pullDownEl.className='flip'
+        pullDownEl.find('.pullDownLabel').html('Release to Refresh')
+        @minScrollY=0
+      else if @y < 5 and !pullDownEl.hasClass 'flip'
+        pullDownEl.className=''
+        pullDownEl.find('.pullDownLabel').html('Pull down to refresh')
+        @minScrollY= -pullDownOffset
+    onScrollEnd:->
+      console.log 'end'
+     
+  }
+  console.log 'pull init end'

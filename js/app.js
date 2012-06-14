@@ -20,7 +20,9 @@ pp = Lawnchair({
 RSSReader.reopen({
   ready: function() {
     this._super();
-    return RSSReader.GetItemsFromStore();
+    RSSReader.GetItemsFromStore();
+    RSSReader.itemController.showDefault();
+    return jQT.initbars();
   }
 });
 
@@ -162,7 +164,7 @@ RSSReader.itemNavController = Em.Object.create({
   prev: function() {
     var currentIndex, prevItem;
     currentIndex = RSSReader.itemController.content.indexOf(this.get('currentItem'));
-    prevItem = RSSReader.itemController.content[currentIndex + 1];
+    prevItem = RSSReader.itemController.content[currentIndex - 1];
     if (prevItem) {
       return this.select(prevItem);
     }
@@ -170,10 +172,16 @@ RSSReader.itemNavController = Em.Object.create({
 });
 
 RSSReader.SummaryListView = RSSReader.ListView.extend({
-  contentBinding: 'RSSReader.itemController.content'
+  contentBinding: 'RSSReader.itemController.content',
+  templateName: 'main',
+  didInsertElement: function() {
+    console.log('main insert');
+    return RSSReader.pullinit();
+  }
 });
 
 RSSReader.ListItemView.reopen({
+  templateName: 'current',
   classNameBindings: ['read', 'starred'],
   read: (function() {
     var read;
@@ -224,7 +232,11 @@ RSSReader.EntryItemView = RSSReader.ContentView.extend({
   active: (function() {
     return true;
   }).property('RSSReader.itemNavController.currentItem'),
-  contentBinding: 'RSSReader.itemNavController.currentItem'
+  contentBinding: 'RSSReader.itemNavController.currentItem',
+  viewDidChange: (function() {
+    console.log('view change');
+    return jQT.setPageHeight();
+  }).observes('content')
 });
 
 RSSReader.EntryFooterView = RSSReader.FooterView.extend({
@@ -268,7 +280,7 @@ RSSReader.EntryFooterView = RSSReader.FooterView.extend({
 
 RSSReader.GetItemsFromStore = function() {
   var items;
-  items = store.all(function(arr) {
+  return items = store.all(function(arr) {
     arr.forEach(function(entry) {
       var item;
       item = RSSReader.Item.create(entry);
@@ -276,8 +288,6 @@ RSSReader.GetItemsFromStore = function() {
     });
     return console.log('entries load form local:', arr.length);
   });
-  RSSReader.itemController.showDefault();
-  return RSSReader.GetItemsFromSource();
 };
 
 RSSReader.GetItemsFromSource = function() {
@@ -316,6 +326,67 @@ RSSReader.GetItemsFromSource = function() {
         return store.save(item);
       }
     });
-    return RSSReader.itemController.showDefault();
+    return jQT.initbars();
   });
+};
+
+$(function() {
+  var c, v;
+  $('.swipe').swipe(function(evt, info) {
+    console.log('tap', info.direction);
+    if (info.direction === 'right') {
+      return RSSReader.itemNavController.prev();
+    } else if (info.direction === 'left') {
+      return RSSReader.itemNavController.next();
+    }
+  });
+  v = RSSReader.get('mainView');
+  if (!v) {
+    console.log('main not created');
+    v = App.MainView.create();
+    RSSReader.set('mainView', v);
+    v.appendTo($('#jqt'));
+  }
+  c = RSSReader.get('currentView');
+  if (!c) {
+    console.log('current not created');
+    c = RSSReader.CurrentView.create();
+    RSSReader.set('currentView', c);
+    return c.appendTo($('#jqt'));
+  }
+});
+
+RSSReader.pullinit = function() {
+  var pullDownEl, pullDownOffset, pullToRefresh;
+  console.log('mainview ready');
+  pullDownEl = $('#pullDown');
+  pullDownOffset = pullDownEl.height();
+  console.log('pull start', $('#pulltoupdate'));
+  pullToRefresh = new iScroll('pulltoupdate', {
+    userTransition: true,
+    topOffset: pullDownOffset,
+    onRefresh: function() {
+      console.log('refresh');
+      if (pullDownEl.hasClass('loading')) {
+        pullDownEl.className = '';
+        return pullDownEl.find('pullDownLabel').html('PullDown to Refresh');
+      }
+    },
+    onScrollMove: function() {
+      console.log('move');
+      if (this.y > 5 && !pullDownEl.hasClass('flip')) {
+        pullDownEl.className = 'flip';
+        pullDownEl.find('.pullDownLabel').html('Release to Refresh');
+        return this.minScrollY = 0;
+      } else if (this.y < 5 && !pullDownEl.hasClass('flip')) {
+        pullDownEl.className = '';
+        pullDownEl.find('.pullDownLabel').html('Pull down to refresh');
+        return this.minScrollY = -pullDownOffset;
+      }
+    },
+    onScrollEnd: function() {
+      return console.log('end');
+    }
+  });
+  return console.log('pull init end');
 };

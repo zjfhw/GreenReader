@@ -688,6 +688,7 @@ Tabbar Dynamically Loaded Pages
               $this.data('iscroll', iscroll);
               if ($('#' + pageID).hasClass('current')) {
                 _debug('init_iScroll');
+                  console.log('initiscroll',pageID);
                 setPageHeight($('#' + pageID));
               }
             }
@@ -721,8 +722,10 @@ Tabbar Dynamically Loaded Pages
       // End init_iScroll()
 
       // Begin loading iscroll & initialization
-      $(document).ready(function () {
-        var getPath = (function() {
+      // $(document).ready(function () {
+      
+        function initbars(){
+             var getPath = (function() {
           var path;
           _debug();
           $('script').each(function () {
@@ -778,10 +781,11 @@ Tabbar Dynamically Loaded Pages
         } else {
           initializations();
         }
-      });
+        };
       // End loading iscroll & initialization
 
       return {
+          initbars:initbars,
         init_iScroll: init_iScroll,
         initTabbar: initTabbar,
         refresh_iScroll: refresh_iScroll,
