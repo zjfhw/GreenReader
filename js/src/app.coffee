@@ -22,14 +22,27 @@ RSSReader.reopen
     @_super()
     # get content from rss source
     
-    RSSReader.GetItemsFromStore()
-    RSSReader.itemController.showDefault()
+    RSSReader.GetItemsFromStore('showDefault')
+    RSSReader.navbarController.mainPage()
     # RSSReader.pageinit()
     jQT.initbars()
     
   
     # RSSReader.initPullToRefresh()
-
+mainNavJson=[
+  {
+    id:'#settings'
+    title:'Settings'
+    icon:''
+    count:3
+  }
+  {
+    id:'#main'
+    title:'Main'
+    icon:''
+    count:4
+   }
+]
 ################
 # create Model #
 ################
@@ -46,6 +59,12 @@ RSSReader.Item = Em.Object.extend
   feed_link: null # rss source link
   item_link:null # news item source link
 
+# Footer Nav Button
+RSSReader.NavButton = Em.Object.extend
+  url:null
+  title:null
+  icon:null
+  count:null
 #
 # create Controller
 #
@@ -53,6 +72,7 @@ RSSReader.Item = Em.Object.extend
 
 RSSReader.dataController = Em.ArrayController.create
   content: []
+  
   # add item to controller if it's not exists already
   addItem:(item) ->
     exists = @filterProperty('item_id',item.item_id).length
@@ -106,7 +126,11 @@ RSSReader.dataController = Em.ArrayController.create
 
 RSSReader.itemController = Em.ArrayController.create
   content: []
+  currentList:'showDefault'
 
+  refreshList:(callbackFn)->
+    console.log('currentList',@get 'currentList') 
+    RSSReader.GetItemsFromStore @get('currentList'), callbackFn 
   # user can filt items by 'read unread starred'...
   filterBy: (key,value)->
     @set 'content', RSSReader.dataController.filterProperty key,value
@@ -119,6 +143,14 @@ RSSReader.itemController = Em.ArrayController.create
   showDefault:->
     @filterBy 'read',false
 
+  showAll:->
+    clearFilter()
+  showRead:->
+    @filterBy 'read',true
+  showStarred:->
+    @filterBy 'starred',true
+  showUnread:->
+    @filterBy 'read',false
   markAllRead:->
     @forEach (item) ->
       item.set 'read',true
@@ -185,7 +217,19 @@ RSSReader.itemNavController = Em.Object.create
     prevItem = RSSReader.itemController.content[currentIndex-1]
     if prevItem
       @select prevItem
+
+RSSReader.navbarController = Em.ArrayController.create
+  content:[]
+  mainPage:->
+    # c = @get('content')
+    # c.clear()
+    @insertAt 0, RSSReader.NavButton.create btn for btn in mainNavJson
+  arrayDidChange:->
+    console.log 'navbar add',@get 'content'
   
+  # subsPage:->
+    
+
 ###############
 # create View #
 ###############
@@ -196,7 +240,8 @@ RSSReader.SummaryListView = RSSReader.ListView.extend
   templateName: 'main'
   didInsertElement:->
     console.log 'main insert'
-    RSSReader.pullinit()
+    Em.run.next(->
+      RSSReader.pullinit())
   # tagName: 'article' # view tag
   # classNames: ['well','summary'] # view class 
   # css class binding to read and starred
@@ -216,37 +261,45 @@ RSSReader.ListItemView.reopen
     console.log 'select', @get 'content'
     content = @get 'content'
     RSSReader.itemNavController.select content
-    jQT.goTo '#current-view'
+    jQT.goTo '#current-view','slideleft'
     # $.mobile.changePage '#current-view',{transition:'slide'}
   dateFromNow:(->
     moment(@get('content').get 'pub_date').fromNow()
   ).property 'RSSReader.itemController.@each.pub_date'
 # - Header
 RSSReader.HeaderView.reopen
-  refresh:->
+  refresh:()->
     RSSReader.GetItemsFromStore()
-
+    # callback()
 # - NavBar
+RSSReader.FooterNavBarView = Em.View.extend
+  contentBinding:'RSSReader.navbarController.content'
+  # templateName:'navbar'
+  # content:[{id:'nimei',title:'zahuishi'}]
+  click:->
+    console.log 'nimeia'
 RSSReader.NavbarView.reopen
   # property binding
+  currentListBinding:'RSSReader.itemController.currentList'
   itemCountBinding:'RSSReader.dataController.itemCount'
   unreadCountBinding:'RSSReader.dataController.unreadCount'
   starredCountBinding:'RSSReader.dataController.starredCount'
   readCountBinding:'RSSReader.dataController.readCount'
-
+  
   # Actions
   showAll:->
     RSSReader.itemController.clearFilter()
-
+    @set 'currentList','showAll'
   showUnread:->
     RSSReader.itemController.filterBy 'read',false
+    @set 'currentList','showUnread'
 
   showRead:->
     RSSReader.itemController.filterBy 'read',true
-    
+    @set 'currentList','showRead'
   showStarred:->
     RSSReader.itemController.filterBy 'starred',true
-
+    @set 'currentList','showStarred'
 # - entry detail view
 
 RSSReader.EntryItemView = RSSReader.ContentView.extend
@@ -258,7 +311,7 @@ RSSReader.EntryItemView = RSSReader.ContentView.extend
     console.log 'view change'
     jQT.setPageHeight()
   ).observes 'content'
-  
+
 RSSReader.EntryFooterView = RSSReader.FooterView.extend
   'data-position':'fixed'
   contentBinding: 'RSSReader.itemNavController.currentItem'
@@ -292,17 +345,14 @@ RSSReader.EntryFooterView = RSSReader.FooterView.extend
 #############################
 # Get Items from rss source #
 #############################
-RSSReader.GetItemsFromStore = ->
+RSSReader.GetItemsFromStore = (currentList, callback)->
   items = store.all (arr)->
     arr.forEach (entry)->
       item = RSSReader.Item.create entry
       RSSReader.dataController.addItem item
     console.log 'entries load form local:', arr.length
-  # RSSReader.GetItemsFromSource()
-  
-RSSReader.GetItemsFromSource = ->
   # feed source
-  feed = 'http://cn.engadget.com/tag/breaking+news/rss.xml'
+  feed = 'http://cn.engadget.com/rss.xml'
   feed = encodeURIComponent feed
   # Feed parser that supports CORS and returns data as a JSON string
   # select * from xml where url='http://cn.engadget.com/tag/breaking+news/rss.xml'
@@ -340,11 +390,17 @@ RSSReader.GetItemsFromSource = ->
 
       if RSSReader.dataController.addItem RSSReader.Item.create item
         store.save item
-    jQT.initbars()
-
-## Page Init
+    if !currentList
+      currentList="showDefault"
+    # showList
+    RSSReader.itemController[currentList]()
+    # execute callback function
+    if callback
+      callback()
+## on Document Ready
 # RSSReader.pageinit = ->
 $(->
+  
   $('.swipe').swipe (evt, info)->
     console.log 'tap', info.direction
     if info.direction is 'right'
@@ -366,35 +422,48 @@ $(->
     console.log 'current not created'
     c = RSSReader.CurrentView.create()
     RSSReader.set('currentView',c)
-    c.appendTo $('#jqt')  
+    c.appendTo $('#jqt')
+ 
+ 
 )
+
+pullDownAction = (scroll)->
+  RSSReader.itemController.refreshList(->
+    scroll.refresh()
+    # console.log 'asdf'
+  )
+
+# pull down to refresh initialize
 RSSReader.pullinit = ->
-  console.log 'mainview ready'
+  # console.log 'jqtbars ready',jQT.barsReady
+  # console.log 'mainview ready'
   pullDownEl = $('#pullDown')
-  pullDownOffset = pullDownEl.height()
+  pullDownOffset = 51
   # pullUpEl = document.getElementById('pullUp');	
-  # pullUpOffset = pullUpEl.offsetHeight;
-  console.log 'pull start',$('#pulltoupdate')
-  pullToRefresh = new iScroll 'pulltoupdate',{
-    userTransition:true
-    topOffset:pullDownOffset
+  # pullUpOffset = 
+  # console.log 'pull start', $('#main-view_wrapper_0').data()
+  # console.log 'wrapper data', $('#main-view_wrapper_0').data('iscroll')
+  $('#main-view_wrapper_0').iscroll
+    topOffset:51
     onRefresh:->
-      console.log 'refresh'
+      # console.log 'refresh'
       if pullDownEl.hasClass 'loading'
-        pullDownEl.className=''
+        # console.log 'remove'
+        pullDownEl.removeClass()
         pullDownEl.find('pullDownLabel').html('PullDown to Refresh')
     onScrollMove:->
-      console.log 'move'
+      # console.log 'move'
       if @y > 5 and !pullDownEl.hasClass 'flip'
-        pullDownEl.className='flip'
+        pullDownEl.addClass 'flip'
         pullDownEl.find('.pullDownLabel').html('Release to Refresh')
         @minScrollY=0
       else if @y < 5 and !pullDownEl.hasClass 'flip'
-        pullDownEl.className=''
+        pullDownEl.removeClass 'flip'
         pullDownEl.find('.pullDownLabel').html('Pull down to refresh')
         @minScrollY= -pullDownOffset
     onScrollEnd:->
-      console.log 'end'
-     
-  }
-  console.log 'pull init end'
+      # console.log 'pull end'
+      if pullDownEl.hasClass 'flip'
+        pullDownEl.addClass 'loading'
+        pullDownEl.find('.pullDownLabel').html 'Loading...'
+        pullDownAction(this) 

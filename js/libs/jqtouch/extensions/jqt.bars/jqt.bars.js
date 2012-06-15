@@ -686,6 +686,7 @@ Tabbar Dynamically Loaded Pages
                 }
               }
               $this.data('iscroll', iscroll);
+              $('#'+pageID).data('iScrollReady', true);
               if ($('#' + pageID).hasClass('current')) {
                 _debug('init_iScroll');
                   console.log('initiscroll',pageID);

@@ -42,28 +42,44 @@
 </script>
 <script type="text/javascript" charset="utf-8">
   var jQT = $.jQTouch({
-  touchSelector:'.swipe'
+  touchSelector:'.swipe',
+  useFastTouch:true
   });
 </script>
 </head>
 <body>
-  <div id="tabbar">
-    <div>
-      <ul>
+  <!-- <div id="tabbar"> -->
+    <div id="tabbar">
+      <script type="text/x-handlebars">
+      {{#view RSSReader.FooterNavBarView}}
+      <div>
+        <ul>
+        {{#each content}}
         <li>
-          <!-- Action from the href attribute -->
-          <a href="#" animation="slidedown">
-            <strong>Alert1</strong>
+          <a href="{{id}}">
+            <strong>{{title}}</strong>
           </a>
         </li>
-        <li>
-          <!-- Action from the href attribute -->
-          <a href="#" animation="slidedown">
-            <strong>Alert2</strong>
-          </a>
-        </li>
-      </ul>
-    </div>
+      {{/each}}
+        </ul>
+      </div>
+      {{/view}}
+    </script>
+      <!-- <ul> -->
+      <!--   <li> -->
+      <!--     <\!-- Action from the href attribute -\-> -->
+      <!--     <a href="#" class="back" animation="slidedown"> -->
+      <!--       <strong>Alert1</strong> -->
+      <!--     </a> -->
+      <!--   </li> -->
+      <!--   <li> -->
+      <!--     <\!-- Action from the href attribute -\-> -->
+      <!--     <a href="#" animation="slidedown"> -->
+      <!--       <strong>Alert2</strong> -->
+      <!--     </a> -->
+      <!--   </li> -->
+      <!-- </ul> -->
+ 
   </div>
 
   <!-- jqt content -->
@@ -103,7 +119,7 @@
       {{#view RSSReader.HeaderView}}
       <a href="#" class="back">返回</a>
       <h1></h1>
-      <a {{action "refresh" on="click"}} class="button">Refresh</a>
+      <!-- <a {{action "refresh" on="click"}} class="button">Refresh</a> -->
       {{/view}}
 
       {{#view RSSReader.NavbarView}}
@@ -140,11 +156,12 @@
       <a href="#" class="back">Back</a>
       <h1>Detail</h1>
       {{/view}}
-
-      {{#if RSSReader.itemNavController.currentItem}}
 <div class="s-scrollwrapper">
+ <div class="swipe">
+      {{#if RSSReader.itemNavController.currentItem}}
 
-      <div class="swipe">
+
+     
         {{#view RSSReader.EntryItemView}}
         
         <h1>{{content.title}}</h1>
@@ -153,10 +170,11 @@
         <hr />
         <p class="post-content">{{{content.content}}}</p>
         {{/view}}
-         </div>
-        </div>
+         
 
         {{/if}}
+</div>
+        </div>
         <!-- {{#view RSSReader.EntryFooterView}} -->
         <!-- <a {{action "toggleStar" on="click"}} {{bindAttr class="starClass"}}>Star</a> -->
         <!-- <a {{action "toggleRead" on="click"}} {{bindAttr class="readClass"}}>Mark</a> -->

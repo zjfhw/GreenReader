@@ -57,7 +57,7 @@ var m = Math,
 			i;
    
 		that.wrapper = typeof el == 'object' ? el : doc.getElementById(el);
-    console.log(el,that)
+    console.log('new iscroll',el,that);
 		that.wrapper.style.overflow = 'hidden';
     
 		that.scroller = that.wrapper.children[0];
