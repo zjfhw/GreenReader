@@ -35,7 +35,7 @@
     <script src="js/libs/jqtouch/extensions/jqt.bars/iscroll.js" type="text/javascript" charset="utf-8"></script>
     <!-- <script src="js/libs/jqtouch/extensions/jqt.autotitles.js" type="text/javascript" charset="utf-8"></script> -->
     <!-- <script src="js/libs/jqtouch/extensions/jqt.autotitles.js" type="text/javascript" charset="utf-8"></script> -->
-    <script src="js/libs/ember-0.9.8.1.min.js"></script>
+    <script src="js/libs/ember-0.9.8.1.js"></script>
     <script type="text/javascript" src="js/libs/lawnchair-0.6.1.min.js"></script>
     <!-- <script type="text/javascript" scr = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"> -->
     
@@ -72,17 +72,19 @@
       <div id="some_id" class="toolbar">
         <h1>Add Subscription</h1>
       </div> 
+      <script type="text/x-handlebars">
       <ul>
-        <li><input type="url" placeholder="URL of source"/></li>
-         <li><input type="text" placeholder="Title (Option)" /></li>
+        <li>{{view Em.TextField type="url" placeholder="URL of Source" valueBinding="RSSReader.subscriptionController.addUrl"}}</li>
+         <li>{{view Em.TextField type="text" placeholder="Title (Option)" valueBinding="RSSReader.subscriptionController.addTitle"}}</li>
       </ul>
-      <!-- {{#view RSSReader.AddSubscriptionView}} -->
-      <a class="greenButton" href="#">
+      {{#view RSSReader.AddSubscriptionView}}
+      <a class="greenButton" href="#" {{action "click" on="click"}}>
         ADD
-      </a>
-      <!-- {{/view}} -->
+</a>
+      {{/view}}
+      </script>
       <br>
-      <a class="grayButton" href="#main-view">
+      <a class="grayButton" href="#">
         Cancel
       </a>
     </div> 
@@ -99,20 +101,20 @@
           </div>
           <h2>Lists</h2>
           <ul class="rounded">
-            <li class="arrow"><a href="#list-view" class="cubeleft">engadget</a></li>
+            <!-- <li class="arrow"><a href="#list-view" class="cubeleft">engadget</a></li> -->
             <li class="arrow"><a href="jqtouch.html">Edge to Edge</a></li>
-            <li class="arrow"><a href="#plastic">Plastic</a></li>
-            <li class="arrow"><a href="#metal">Metal</a></li>
-            <li><a href="javascript:void(0);" class="swipe">Swipe me!</a></li>
+            <!-- <li><a href="javascript:void(0);" class="swipe">Swipe me!</a></li> -->
           </ul>
           <h2>Subscriptions</h2>
-          <!-- {{#collection RSSReader.SubscriptionView}} -->
-          <!-- {{title}} -->
-          <!-- {{/collection}} -->
-          <h2>Forms</h2>
-          <ul class="rounded">
-            <li class="arrow"><a href="#forms">Forms</a></li>
-          </ul>
+ <script type="text/x-handlebars">          
+          {{#collection RSSReader.SubscriptionView}}
+          <a href="#list-view">{{content.title}}</a>
+          {{/collection}}
+</script>
+          <!-- <h2>Forms</h2> -->
+          <!-- <ul class="rounded"> -->
+            <!-- <li class="arrow"><a href="#forms">Forms</a></li> -->
+          <!-- </ul> -->
         </div>
       </div>
     </div>
@@ -120,11 +122,11 @@
     
     <script type="text/x-handlebars" data-template-name="listview" id="listview">
 
-      {{#view RSSReader.HeaderView}}
+      <div class="toolbar">
       <a href="#" class="back">返回</a>
       <h1></h1>
       <!-- <a {{action "refresh" on="click"}} class="button">Refresh</a> -->
-      {{/view}}
+      </div>
 
       <!-- {{#view RSSReader.NavbarView}} -->
       <!-- <div class="navbar"> -->
@@ -174,21 +176,13 @@
         {{/if}}
 </div>
         </div>
-        <!-- {{#view RSSReader.EntryFooterView}} -->
-        <!-- <a {{action "toggleStar" on="click"}} {{bindAttr class="starClass"}}>Star</a> -->
-        <!-- <a {{action "toggleRead" on="click"}} {{bindAttr class="readClass"}}>Mark</a> -->
-        <!-- <a {{action "prevpage" on="click"}} {{bindAttr disabled="prevDisable"}}>Prev</a> -->
-        <!-- <a {{action "nextpage" on="click"}} class="slideup" {{bindAttr disabled="nextDisable"}}>Next</a> -->
-        <!-- {{/view}} -->
-     
-
     </script>
   </div>
   
   <script src="js/dev-helper.js"></script>
   <script src="js/plugins.js"></script>
   <script src="js/init.js"></script>
-  <script src="js/jqm.js"></script>
+  <!-- <script src="js/jqm.js"></script> -->
   <script src="js/app.js"></script>
   <script src="js/libs/jqtouch/extensions/jqt.bars/jqt.bars.js" type="text/javascript" charset="utf-8"></script>
 </body>

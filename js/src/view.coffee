@@ -3,19 +3,32 @@
 # create View #
 ###############
 
+RSSReader.ListView = Em.View.extend
+  templateName:'listview'
+  elementId: 'list-view'
+
+RSSReader.CurrentView = Em.View.extend
+  templateName:'current'
+  elementId: 'current-view'
 
 RSSReader.SubscriptionView = Em.CollectionView.extend
   contentBinding: 'RSSReader.subscriptionController.content'
-  tageName:'ul'
+  tagName:'ul'
+  classNames:['rounded']
   itemViewClass:Em.View.extend
     tagName:'li'
+    classNames: ['arrow']
+    elementId:(->
+      @get('content').url
+    ).property 'content'
     click:->
-      console.log 'click', this
+      console.log 'click',@get 'elementId'
+      RSSReader.GetItemsFromStore(@get 'elementId')
       # GetItemsFromStore()
 RSSReader.AddSubscriptionView = Em.View.extend
-  add:->
-    console.log this
-    # RSSReader.subscriptionController.addItem
+  click:->
+    RSSReader.subscriptionController.addItem()
+      
 RSSReader.FooterNavBarView = Em.CollectionView.extend
   contentBinding:'RSSReader.navbarController.content'
   # templateName:'navbar'
@@ -64,7 +77,7 @@ RSSReader.SummaryListView = Em.CollectionView.extend
   # classNames: ['well','summary'] # view class 
   # css class binding to read and starred
   
-RSSReader.ListItemView.reopen
+RSSReader.ListItemView = Em.View.extend
   # templateName: 'current'
   classNameBindings: ['read','starred']
   read:(->
@@ -85,11 +98,6 @@ RSSReader.ListItemView.reopen
     moment(@get('content').get 'pub_date').fromNow()
   ).property 'RSSReader.itemController.@each.pub_date'
 # - Header
-RSSReader.HeaderView.reopen
-  refresh:()->
-    RSSReader.GetItemsFromStore()
-    # callback()
-
 # - item's NavBar view
 RSSReader.NavbarView = Em.View.extend
   

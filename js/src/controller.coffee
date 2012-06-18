@@ -159,26 +159,35 @@ RSSReader.itemNavController = Em.Object.create
 
 RSSReader.navbarController = Em.ArrayController.create
   content:[]
-  listPageTab:->
+  currentPage:listNavJson
+  tab:(->
     @clear()
-    @pushObject RSSReader.NavButton.create btn for btn in listNavJson
-  mainPageTab:->
-    @clear()
-    @pushObject RSSReader.NavButton.create btn for btn in mainNavJson
-  currentPageTab:->
-    @clear()
-    @pushObject RSSReader.NavButton.create btn for btn in currentNavJson
-  # subsPage:->
+    @pushObject RSSReader.NavButton.create btn for btn in @get 'currentPage'
+  ).observes 'currentPage'
+  # mainPageTab:->
+  #   @clear()
+  #   @pushObject RSSReader.NavButton.create btn for btn in mainNavJson
+  # currentPageTab:->
+  #   @clear()
+  #   @pushObject RSSReader.NavButton.create btn for btn in currentNavJson
+  # # subsPage:->
+
     
 RSSReader.subscriptionController = Em.ArrayController.create
   content: []
-  
+  addUrl:null
+  addTitle:null
   # add item to controller if it's not exists already
   addItem:(item) ->
+    if !item
+      item=
+        url:@get 'addUrl'
+        title:@get 'addTitle'
     exists = @filterProperty('url',item.url).length
     if exists is 0
-      length = @get ('length')
-      @pushObject item
+      subscriptionData.save item
+      @pushObject RSSReader.Subscription.create item
+      console.log @get 'content'
       return true
     else
       false

@@ -5,9 +5,8 @@
 # local storage
 # new lawnchair ->
 
-nimei='entries'
 store = Lawnchair
-  name:nimei
+  name:'entries'
   record:'entry'
   ,->
 
@@ -16,13 +15,13 @@ subscriptionData=Lawnchair
   record:'entry'
   ,->
 # app
-RSSReader.reopen
+RSSReader = Em.Application.create
   ready:->
     @_super()
     # get content from rss source
-    
-    RSSReader.GetItemsFromStore('showDefault')
-    RSSReader.navbarController.mainPageTab()
+    # RSSReader.GetItemsFromStore('showDefault')
+    RSSReader.getSubscription()
+    RSSReader.navbarController.set 'currentPage',mainNavJson
     # RSSReader.pageinit()
     jQT.initbars()
     
@@ -107,14 +106,19 @@ currentNavJson=[
 #############################
 # Get Items from rss source #
 #############################
-RSSReader.GetItemsFromStore = (currentList, callback)->
+RSSReader.GetItemsFromStore = (feed,currentList, callback)->
+  store = Lawnchair
+    name:feed
+    record:'entry'
+    ,->
   items = store.all (arr)->
     arr.forEach (entry)->
       item = RSSReader.Item.create entry
       RSSReader.dataController.addItem item
     console.log 'entries load form local:', arr.length
   # feed source
-  feed = 'http://cn.engadget.com/rss.xml'
+  if not feed
+    feed = 'http://cn.engadget.com/rss.xml'
   feed = encodeURIComponent feed
   # Feed parser that supports CORS and returns data as a JSON string
   # select * from xml where url='http://cn.engadget.com/tag/breaking+news/rss.xml'
@@ -125,6 +129,8 @@ RSSReader.GetItemsFromStore = (currentList, callback)->
 
   $.getJSON feedPipeURL,(data)->
     console.log data.query.results
+    if not data.query.results
+      alert 'check your url'
     items = data.query.results.rss.channel.item
 
     feedLink = data.query.results.rss.channel.link
@@ -158,18 +164,23 @@ RSSReader.GetItemsFromStore = (currentList, callback)->
     RSSReader.itemController[currentList]()
     # execute callback function
     if callback
-      callback()
+      callback()     
 
+RSSReader.clearStore = (key,callback)->
+  Lawnchair {name:key},->
+    this.nuke()
+  if callback
+    callback()
+    
 RSSReader.getSubscription = ->
   items = subscriptionData.all (arr)->
     arr.forEach (entry)->
       item = RSSReader.Subscription.create entry
-      RSSReader.SubscriptionController.addItem item
-    console.log 'entries load form local:', arr.length
+      RSSReader.subscriptionController.addItem item
+    console.log 'subscription load form local:', arr.length
 ## on Document Ready
 # RSSReader.pageinit = ->
 $(->
-  
   $('.swipe').swipe (evt, info)->
     console.log 'tap', info.direction
     if info.direction is 'right'
@@ -182,7 +193,7 @@ $(->
 
   if !v
     console.log 'list not created'
-    v = App.ListView.create()
+    v = RSSReader.ListView.create()
     RSSReader.set 'listView',v
     v.appendTo $('#jqt')
   c = RSSReader.get 'currentView'
@@ -195,19 +206,19 @@ $(->
 
   $('#list-view').live 'pageAnimationEnd', (event,info)->
     if info.direction is 'in'
-      RSSReader.navbarController.listPageTab()
+      RSSReader.navbarController.set 'currentPage',listNavJson
       Em.run.next ->
         jQT.initTabbar()
       # jQT.initTabbar()
   $('#main-view').live 'pageAnimationEnd', (event,info)->
     if info.direction is 'in'
-      RSSReader.navbarController.mainPageTab()
+      RSSReader.navbarController.set 'currentPage',mainNavJson
       Em.run.next ->
         jQT.initTabbar()
       # jQT.initTabbar()
   $('#current-view').live 'pageAnimationEnd', (event,info)->
     if info.direction is 'in'
-      RSSReader.navbarController.currentPageTab()
+      RSSReader.navbarController.set 'currentPage',currentNavJson
       Em.run.next ->
         jQT.initTabbar()
 )
@@ -246,3 +257,4 @@ RSSReader.pullinit = ->
         pullDownEl.addClass 'loading'
         pullDownEl.find('.pullDownLabel').html 'Loading...'
         pullDownAction(this) 
+
