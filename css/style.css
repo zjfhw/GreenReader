@@ -89,21 +89,20 @@ a:hover { color: #036; }
 
 
 
-.read {
+#jqt ul.plastic li.read, #jqt ul.plastic li.read p{
   color:gray;
   /*background-color: darkgrey;*/
 }
 
+ul.plastic li em {
+  color: yellowGreen;
+}
+ul.plastic li.read em {
+  color: lightgray;
+}
 
 img {
   max-width:300px;
-}
-
-.navbar ul
-{
-  display: inline-table;
-width:auto;
-height:auto;
 }
 
 .navbar li

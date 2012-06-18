@@ -16,12 +16,12 @@
     <!-- <link rel="stylesheet" href="js/libs/jquery.mobile-1.1.0.min.css" type="text/css" media="screen" /> -->
     <style type="text/css" media="screen">@import "js/libs/jqtouch/jqtouch/jqtouch.css";</style>
     <!-- <style type="text/css" media="screen">@import "js/libs/jqtouch/themes/jqt/theme.css";</style> -->
-    <style type="text/css" media="screen">@import "css/artspot/theme.css";</style>
-    <style type="text/css" media="screen">@import "css/style.css";</style>
+    <style type="text/css" media="screen">@import "css/themes/artspot/theme.css";</style>
+   
     <style type="text/css" media="screen">@import "js/libs/jqtouch/extensions/jqt.bars/jqt.bars.css";</style>
     
     <style type="text/css" media="screen">@import "js/libs/jqtouch/extensions/jqt.bars/themes/jqt/theme.css";</style>
-
+     <style type="text/css" media="screen">@import "css/style.css";</style>
     <!--[if lt IE 9]>
         <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
@@ -34,7 +34,7 @@
     <script src="js/libs/jqtouch/jqtouch/jqtouch-jquery.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/libs/jqtouch/extensions/jqt.bars/iscroll.js" type="text/javascript" charset="utf-8"></script>
     <!-- <script src="js/libs/jqtouch/extensions/jqt.autotitles.js" type="text/javascript" charset="utf-8"></script> -->
-    <script src="js/libs/jqtouch/extensions/jqt.autotitles.js" type="text/javascript" charset="utf-8"></script>
+    <!-- <script src="js/libs/jqtouch/extensions/jqt.autotitles.js" type="text/javascript" charset="utf-8"></script> -->
     <script src="js/libs/ember-0.9.8.1.min.js"></script>
     <script type="text/javascript" src="js/libs/lawnchair-0.6.1.min.js"></script>
     <!-- <script type="text/javascript" scr = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"> -->
@@ -51,42 +51,46 @@
   <!-- <div id="tabbar"> -->
     <div id="tabbar">
       <script type="text/x-handlebars">
-      {{#view RSSReader.FooterNavBarView}}
-      <div>
-        <ul>
-        {{#each content}}
-        <li>
-          <a href="{{id}}">
+ <div>
+      {{#collection RSSReader.FooterNavBarView}}
+        <!-- {{#with content}} -->
+          <a {{bindAttr href="url"}} {{bindAttr mask="icon"}} {{bindAttr class="enabled"}}>
+            {{#if countName}}
+            <small class="badge right">{{count}}</small>
+            {{/if}}
             <strong>{{title}}</strong>
           </a>
-        </li>
-      {{/each}}
-        </ul>
-      </div>
-      {{/view}}
+      <!-- {{/with}} -->
+      {{/collection}}
+</div>
     </script>
-      <!-- <ul> -->
-      <!--   <li> -->
-      <!--     <\!-- Action from the href attribute -\-> -->
-      <!--     <a href="#" class="back" animation="slidedown"> -->
-      <!--       <strong>Alert1</strong> -->
-      <!--     </a> -->
-      <!--   </li> -->
-      <!--   <li> -->
-      <!--     <\!-- Action from the href attribute -\-> -->
-      <!--     <a href="#" animation="slidedown"> -->
-      <!--       <strong>Alert2</strong> -->
-      <!--     </a> -->
-      <!--   </li> -->
-      <!-- </ul> -->
- 
   </div>
 
   <!-- jqt content -->
   <div id="jqt">
-    <div id="ui" class="current">
+    <div id="addsubscription" class="some_class">
+      <div id="some_id" class="toolbar">
+        <h1>Add Subscription</h1>
+      </div> 
+      <ul>
+        <li><input type="url" placeholder="URL of source"/></li>
+         <li><input type="text" placeholder="Title (Option)" /></li>
+      </ul>
+      <!-- {{#view RSSReader.AddSubscriptionView}} -->
+      <a class="greenButton" href="#">
+        ADD
+      </a>
+      <!-- {{/view}} -->
+      <br>
+      <a class="grayButton" href="#main-view">
+        Cancel
+      </a>
+    </div> 
+    
+    <div id="main-view" class="current">
       <div class="toolbar">
-        <h1>UI Demos</h1>
+        <h1>Green Reader</h1>
+        <a href="#addsubscription" class="button">+</a>
       </div>
       <div class="s-scrollwrapper" momentum="false" vScrollbar="false">
         <div>
@@ -95,16 +99,16 @@
           </div>
           <h2>Lists</h2>
           <ul class="rounded">
-            <li class="arrow"><a href="#main-view">engadget</a></li>
-            <li class="arrow"><a href="#edge">Edge to Edge</a></li>
+            <li class="arrow"><a href="#list-view" class="cubeleft">engadget</a></li>
+            <li class="arrow"><a href="jqtouch.html">Edge to Edge</a></li>
             <li class="arrow"><a href="#plastic">Plastic</a></li>
             <li class="arrow"><a href="#metal">Metal</a></li>
             <li><a href="javascript:void(0);" class="swipe">Swipe me!</a></li>
           </ul>
-          <h2>Buttons</h2>
-          <ul class="rounded">
-            <li class="arrow"><a href="#buttons">Buttons</a></li>
-          </ul>
+          <h2>Subscriptions</h2>
+          <!-- {{#collection RSSReader.SubscriptionView}} -->
+          <!-- {{title}} -->
+          <!-- {{/collection}} -->
           <h2>Forms</h2>
           <ul class="rounded">
             <li class="arrow"><a href="#forms">Forms</a></li>
@@ -114,7 +118,7 @@
     </div>
 
     
-    <script type="text/x-handlebars" id="main" data-template-name="main">
+    <script type="text/x-handlebars" data-template-name="listview" id="listview">
 
       {{#view RSSReader.HeaderView}}
       <a href="#" class="back">返回</a>
@@ -122,18 +126,18 @@
       <!-- <a {{action "refresh" on="click"}} class="button">Refresh</a> -->
       {{/view}}
 
-      {{#view RSSReader.NavbarView}}
-      <div class="navbar">
-        <ul>
-          <li><a {{action "showAll" on="click"}}>{{itemCount}} Items</a></li>
-          <li><a {{action "showUnread" on="click"}}>{{unreadCount}} Unread</a></li>
-          <li><a {{action "showStarred" on="click"}}>{{starredCount}} Starred</a></li>
-          <li><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li>
-        </ul>
-      </div>
-      {{/view}}
+      <!-- {{#view RSSReader.NavbarView}} -->
+      <!-- <div class="navbar"> -->
+      <!--   <ul> -->
+      <!--     <li><a {{action "showAll" on="click"}}>{{itemCount}} Items</a></li> -->
+      <!--     <li><a {{action "showUnread" on="click"}}>{{unreadCount}} Unread</a></li> -->
+      <!--     <li><a {{action "showStarred" on="click"}}>{{starredCount}} Starred</a></li> -->
+      <!--     <li><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li> -->
+      <!--   </ul> -->
+      <!-- </div> -->
+      <!-- {{/view}} -->
 
-      <div class="s-scrollwrapper">
+      <div class="s-scrollwrapper pullable">
         <div id="pulltoupdate" style="left:0px;">
           <div id="pullDown" class="">
 			      <span class="pullDownIcon"></span><span class="pullDownLabel">Pull down to refresh...</span>
@@ -141,37 +145,32 @@
           {{#collection RSSReader.SummaryListView}}
           {{content.title}}
           <p>
-            <em style="white-space:normal;white-space: normal;font-size: 14px;color: yellowGreen;">
+            <em style="white-space:normal;white-space: normal;font-size: 14px;">
               {{content.short_desc}}
             </em>
           </p>
-          <small>{{dateFromNow}}</small>
+          <small style="width:auto;">{{dateFromNow}}</small>
           {{/collection}}
         </div>
       </div>
     </script>
 
-    <script type="text/x-handlebars" id="current" data-template-name="current">
-      {{#view RSSReader.HeaderView}}
+    <script type="text/x-handlebars" data-template-name="current">
+      {{#view RSSReader.EntryItemView}}
+      <div class="toolbar">
       <a href="#" class="back">Back</a>
-      <h1>Detail</h1>
+      <h1>{{content.title}}</h1>
+</div>
       {{/view}}
 <div class="s-scrollwrapper">
  <div class="swipe">
       {{#if RSSReader.itemNavController.currentItem}}
-
-
-     
         {{#view RSSReader.EntryItemView}}
-        
         <h1>{{content.title}}</h1>
-
         <span class="author">{{content.pub_author}}</span>
         <hr />
         <p class="post-content">{{{content.content}}}</p>
         {{/view}}
-         
-
         {{/if}}
 </div>
         </div>

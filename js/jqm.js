@@ -12,16 +12,8 @@
     $.fn.iscroll = function(options){
 		if(this.data('iScrollReady') == null){
 			var that = this;
-            var options =  $.extend({}, options);
-			// 	options.onScrollEnd = function(){
-			// 		that.triggerHandler('onScrollEnd', [this]);
-			// 	};
-      // options.onScrollMove = function(){
-			// 		that.triggerHandler('onScrollMove', [this]);
-			// 	};
-      // options.onRefresh = function(){
-      //   that.triggerHandler('onRefresh',[this]);
-      // };
+      var options =  $.extend({}, options);
+ 
       console.log(options)
 			arguments.callee.object  = new iScroll(this.get(0), options);
 			// NOTE: for some reason in a complex page the plugin does not register
@@ -36,30 +28,8 @@
 		return arguments.callee.object;
 	};
 })(jQuery);
-// (function($){
-//     $.fn.iscroll = function(options){
-// 		if(this.data('iscroll') == undefined){
-// 			var that = this;
-//             var options =  $.extend({}, options);
-// 				options.onScrollEnd = function(){
-// 					that.triggerHandler('onScrollEnd', [this]);
-// 				};
-// 			arguments.callee.object  = new iScroll(this.get(0), options);
-// 			// NOTE: for some reason in a complex page the plugin does not register
-// 			// the size of the element. This will fix that in the meantime.
-// 			setTimeout(function(scroller){
-// 				scroller.refresh();
-// 			}, 1000, arguments.callee.object);
-// 			this.data('iscroll',arguments.callee.object);
-// 		}else{
-// 			arguments.callee.object=this.data('iscroll')
-//       arguments.callee.object.refresh();
-// 		}
-// 		return arguments.callee.object;
-// 	};
-// })(jQuery);
-var App = RSSReader;
 
+App = RSSReader;
 
 // Base classes for jQueryMobile Support
 // In a 'real' implementation, this should be broken out into its own Ember.js module/extension.
@@ -91,9 +61,9 @@ App.ToolbarBaseView = App.MobileBaseView.extend({
 App.HeaderView = App.ToolbarBaseView.extend({
   classNames:['toolbar'] 
 });
-App.NavbarView = App.MobileBaseView.extend({
-  'data-role': 'navbar'
-});
+// App.NavbarView = App.MobileBaseView.extend({
+//   'data-role': 'navbar'
+// });
 App.ContentView = App.MobileBaseView.extend({
   'data-role': 'content'
 });
@@ -114,54 +84,23 @@ App.ListItemView = Em.View.extend({
 //     // itemViewClass: App.ListItemView,
 // });
 
-App.ListView = Em.CollectionView.extend({
-  classNames:['plastic','view'],
-  tagName: 'ul',
-  itemViewClass: App.ListItemView,
-
-  // Observe the attached content array's length and refresh the listview on the next RunLoop tick.
-  contentLengthDidChange: function(){
-    console.log('listview changed',this);
-    var _self = this;
-    Em.run.next(function() {
-      jQT.setPageHeight();
-    });
-  }.observes('content.length')
-
-});
 
 App.Button = Em.Button.extend({
   // Simple marker for consistency with the App.ViewName convention. jQuery Mobile automatically styles buttons.
 });
 
-// App Classes
-
-App.listController = Em.ArrayProxy.create({
-  content: App.sampleFixture,
-
-  addMore: function() {
-    var content = this.get('content');
-    content.pushObject(Em.Object.create({
-      title: 'New Item',
-      description: 'Another Item',
-      thumbnail: 'http://jquerymobile.com/demos/1.0/docs/lists/images/album-bb.jpg'
-    }));
-  }
-});
-
 App.MyView = App.ContentView.extend({
 
 });
-
-App.MainView = App.PageView.extend({
-  attributeBindings:['data-url'],
-  'data-url':'',
-  templateName:'main',
-  elementId: 'main-view',
+App.ListView = App.PageView.extend({
+  // attributeBindings:['data-url'],
+  // 'data-url':'',
+  templateName:'listview',
+  elementId: 'list-view',
   // didInsertElement: function() {
   // $.mobile.changePage(this.$());
   // }
-});
+})
 
 App.CurrentView = App.PageView.extend({
   attributeBindings:['data-url'],
