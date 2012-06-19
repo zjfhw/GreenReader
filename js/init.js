@@ -4,8 +4,11 @@
 		if(this.data('iScrollReady') == null){
 			var that = this;
       var options =  $.extend({}, options);
- 
+      
       console.log(options)
+      if(that.data('iscroll'))
+        arguments.callee.object  =that.data('iscroll')
+        else
 			arguments.callee.object  = new iScroll(this.get(0), options);
 			// NOTE: for some reason in a complex page the plugin does not register
 			// the size of the element. This will fix that in the meantime.

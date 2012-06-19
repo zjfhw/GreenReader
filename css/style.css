@@ -102,7 +102,10 @@ ul.plastic li.read em {
 }
 
 img {
-  max-width:300px;
+  width:auto;
+  height:auto;
+  max-width:400px;
+  max-height:300px;
 }
 #jqt .color-read {
   background-color:red;

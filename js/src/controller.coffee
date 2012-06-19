@@ -190,13 +190,14 @@ RSSReader.navbarController = Em.ArrayController.create
 RSSReader.subscriptionController = Em.ArrayController.create
   content: []
   addUrl:null
-  addTitle:null
+  query:''
   # add item to controller if it's not exists already
   addItem:(item) ->
     if !item
       item=
         url:@get 'addUrl'
-        title:@get 'addTitle'
+        title:@get 'query'
+    RSSReader.FindFeed @get 'query'
     exists = @filterProperty('url',item.url).length
     if exists is 0
       item.key = item.url

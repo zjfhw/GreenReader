@@ -140,8 +140,8 @@ $('.ui-loader').css('display','none');
           <h1>{{content.title}}</h1>
         </div>
         {{/view}}
-        <div class="s-scrollwrapper">
-          <div class="swipe">
+        <div class="s-scrollwrapper swipe">
+          <div class="">
             {{#if RSSReader.itemNavController.currentItem}}
             {{#view RSSReader.EntryItemView}}
             <h1>{{content.title}}</h1>
@@ -162,7 +162,7 @@ $('.ui-loader').css('display','none');
         <script type="text/x-handlebars">
           <ul class="rounded">
             <li>{{view Em.TextField type="url" placeholder="URL of Source" valueBinding="RSSReader.subscriptionController.addUrl"}}</li>
-            <li>{{view Em.TextField type="text" placeholder="Title (Option)" valueBinding="RSSReader.subscriptionController.addTitle"}}</li>
+            <li>{{view Em.TextField type="search" placeholder="Keywords" valueBinding="RSSReader.subscriptionController.query"}}</li>
           </ul>
           {{#view RSSReader.AddSubscriptionView}}
           <a class="greenButton" href="#main-view" {{action "click" on="click"}}>

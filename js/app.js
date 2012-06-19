@@ -88,6 +88,12 @@ currentNavJson = [
   }
 ];
 
+RSSReader.FindFeed = function(query) {
+  return $.getJSON('https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&q=' + query, function(data) {
+    return console.log(data);
+  });
+};
+
 RSSReader.GetItemsFromStore = function(feed, currentList, callback) {
   var feedPipeURL, items;
   store = Lawnchair({
@@ -179,10 +185,11 @@ $(function() {
   $('.swipe').swipe(function(evt, info) {
     console.log('swipe', info.direction);
     if (info.direction === 'right') {
-      return RSSReader.itemNavController.prev();
+      RSSReader.itemNavController.prev();
     } else if (info.direction === 'left') {
-      return RSSReader.itemNavController.next();
+      RSSReader.itemNavController.next();
     }
+    return $(this).iscroll().scrollTo(0, 0);
   });
   $('.swipeToDelete').swipe(function(evt, info) {
     var $this;
@@ -459,15 +466,16 @@ RSSReader.navbarController = Em.ArrayController.create({
 RSSReader.subscriptionController = Em.ArrayController.create({
   content: [],
   addUrl: null,
-  addTitle: null,
+  query: '',
   addItem: function(item) {
     var exists;
     if (!item) {
       item = {
         url: this.get('addUrl'),
-        title: this.get('addTitle')
+        title: this.get('query')
       };
     }
+    RSSReader.FindFeed(this.get('query'));
     exists = this.filterProperty('url', item.url).length;
     if (exists === 0) {
       item.key = item.url;
@@ -499,74 +507,6 @@ RSSReader.subscriptionController = Em.ArrayController.create({
     return console.log(this.get('content').length);
   }
 });
-
-mainNavJson = [
-  {
-    url: '#help-view',
-    title: 'Help',
-    icon: 'css/png/glyphicons_194_circle_question_mark.png'
-  }, {
-    url: '#about-view',
-    title: 'About',
-    icon: 'css/png/glyphicons_195_circle_info.png'
-  }, {
-    url: '#search-view',
-    title: 'Search',
-    icon: 'css/png/glyphicons_027_search.png'
-  }, {
-    url: '#settings-view',
-    title: 'Setting',
-    icon: 'css/png/glyphicons_019_cogwheel.png'
-  }
-];
-
-listNavJson = [
-  {
-    url: '#',
-    title: 'Unread',
-    icon: 'css/png/glyphicons_051_eye_open.png',
-    countName: 'unreadCount',
-    action: 'showUnread'
-  }, {
-    url: '#',
-    title: 'All',
-    icon: 'css/png/glyphicons_071_book.png',
-    countName: 'itemCount',
-    action: 'showAll'
-  }, {
-    url: '#',
-    title: 'Starred',
-    icon: 'css/png/glyphicons_049_star.png',
-    countName: 'starredCount',
-    action: 'showStarred'
-  }, {
-    url: '#',
-    title: 'Read',
-    icon: 'css/png/glyphicons_087_log_book.png',
-    countName: 'readCount',
-    action: 'showRead'
-  }
-];
-
-currentNavJson = [
-  {
-    url: '#list-view',
-    title: 'Back',
-    icon: 'css/png/glyphicons_051_eye_open.png'
-  }, {
-    url: '#',
-    title: 'Star',
-    icon: 'css/png/glyphicons_071_book.png'
-  }, {
-    url: '#',
-    title: 'Share',
-    icon: 'css/png/glyphicons_049_star.png'
-  }, {
-    url: '#',
-    title: 'Read in Browser',
-    icon: 'css/png/glyphicons_087_log_book.png'
-  }
-];
 
 RSSReader.Item = Em.Object.extend({
   read: false,

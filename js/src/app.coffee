@@ -25,8 +25,7 @@ RSSReader = Em.Application.create
     # RSSReader.pageinit()
     jQT.initbars()
     
-  
-    # RSSReader.initPullToRefresh()
+# init Data
 mainNavJson=[
   {
     url:'#help-view'
@@ -100,12 +99,18 @@ currentNavJson=[
     title:'Read in Browser'
     icon:'css/png/glyphicons_087_log_book.png'
    }
-]
+]  
+    # RSSReader.initPullToRefresh()
+
 
 
 #############################
 # Get Items from rss source #
 #############################
+RSSReader.FindFeed = (query)->
+  $.getJSON 'https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&q='+query,(data)->
+    console.log data
+
 RSSReader.GetItemsFromStore = (feed,currentList, callback)->
   store = Lawnchair
     name:feed
@@ -187,6 +192,7 @@ $(->
       RSSReader.itemNavController.prev()
     else if info.direction is 'left'
       RSSReader.itemNavController.next()
+    $(this).iscroll().scrollTo(0,0)
 
   $('.swipeToDelete').swipe (evt, info)->
     console.log 'swipe', info.direction
