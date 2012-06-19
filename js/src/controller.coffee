@@ -29,7 +29,9 @@ RSSReader.dataController = Em.ArrayController.create
     mid
 
   # property return read count
-  itemCount:(->@get 'length').property '@each'
+  itemCount:(->
+    @get 'length'
+  ).property '@each'
 
   readCount:(->
     @filterProperty('read',true).get 'length'
@@ -75,7 +77,7 @@ RSSReader.itemController = Em.ArrayController.create
   # default is show items unread
   showDefault:->
     @filterBy 'read',false
-    @set 'currentList','showRead'
+    @set 'currentList','showUnread'
 
   showAll:->
     console.log 'show all'
@@ -159,11 +161,23 @@ RSSReader.itemNavController = Em.Object.create
 
 RSSReader.navbarController = Em.ArrayController.create
   content:[]
-  currentPage:listNavJson
-  tab:(->
+  itemCountBinding:'RSSReader.dataController.itemCount'
+  currentPage:listNavJson #Default
+  changeTab:->
     @clear()
     @pushObject RSSReader.NavButton.create btn for btn in @get 'currentPage'
+    Em.run.next ->
+      jQT.initTabbar()
+  pageChange:(->
+    console.log 'page change'
+    @changeTab()
+    # jQT.initTabbar()
   ).observes 'currentPage'
+  itemCountChange:(->
+    console.log 'itemCount of itemcont change'
+    @changeTab()
+    # jQT.initTabbar()
+  ).observes 'itemCount'
   # mainPageTab:->
   #   @clear()
   #   @pushObject RSSReader.NavButton.create btn for btn in mainNavJson
@@ -185,9 +199,26 @@ RSSReader.subscriptionController = Em.ArrayController.create
         title:@get 'addTitle'
     exists = @filterProperty('url',item.url).length
     if exists is 0
+      item.key = item.url
       subscriptionData.save item
       @pushObject RSSReader.Subscription.create item
       console.log @get 'content'
       return true
     else
       false
+  removeItem:(key) ->
+    console.log 'deleting',key
+    item = @filterProperty 'url', key
+    if item[0]
+      console.log item,@get('content').length,@get('content').indexOf item[0],@get 'content'
+      @get('content').removeAt @indexOf(item[0])
+    Lawnchair
+      name:key
+      record:'entry'
+      ,->
+        this.nuke()
+    subscriptionData.remove key,->
+      this.all('console.log(subscript.length)')
+     
+    console.log @get('content').length
+     

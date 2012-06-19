@@ -104,13 +104,11 @@ ul.plastic li.read em {
 img {
   max-width:300px;
 }
-
-.navbar li
-{
-display:inline-table;
-float: left;
-list-style-type: none;
-padding: 3px 5px;
+#jqt .color-read {
+  background-color:red;
+}
+#jqt .color-read.hide {
+  display:none;
 }
 
 /**

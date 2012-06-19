@@ -14,20 +14,30 @@ RSSReader.CurrentView = Em.View.extend
 RSSReader.SubscriptionView = Em.CollectionView.extend
   contentBinding: 'RSSReader.subscriptionController.content'
   tagName:'ul'
-  classNames:['rounded']
+  classNames:['plastic']
   itemViewClass:Em.View.extend
     tagName:'li'
     classNames: ['arrow']
     elementId:(->
       @get('content').url
     ).property 'content'
-    click:->
+    getstore:->
       console.log 'click',@get 'elementId'
       RSSReader.GetItemsFromStore(@get 'elementId')
+    delete:->
+      console.log 'delete',@get 'elementId'
+      RSSReader.subscriptionController.removeItem @get 'elementId'
+  contentLengthDidChange:(->
+    console.log('subscription changed',this)
+    Em.run.next( ->
+      jQT.setPageHeight()
+    )
+  ).observes('content.length')
       # GetItemsFromStore()
 RSSReader.AddSubscriptionView = Em.View.extend
   click:->
     RSSReader.subscriptionController.addItem()
+    jQT.goTo '#main-view','flipleft'
       
 RSSReader.FooterNavBarView = Em.CollectionView.extend
   contentBinding:'RSSReader.navbarController.content'
@@ -57,7 +67,25 @@ RSSReader.FooterNavBarView = Em.CollectionView.extend
 RSSReader.SummaryListView = Em.CollectionView.extend
   classNames:['plastic','view']
   tagName: 'ul'
-  itemViewClass: RSSReader.ListItemView
+  itemViewClass: Em.View.extend
+    classNameBindings: ['read','starred']
+    read:(->
+      read = @get('content').get 'read'
+    ).property('RSSReader.itemController.@each.read')
+
+    starred:(->
+      starred = @get('content').get 'starred'
+    ).property 'RSSReader.itemController.@each.starred'
+
+    click:(evt)->
+      console.log 'select', @get 'content'
+      content = @get 'content'
+      RSSReader.itemNavController.select content
+      jQT.goTo '#current-view','slideleft'
+      # $.mobile.changePage '#current-view',{transition:'slide'}
+    dateFromNow:(->
+      moment(@get('content').get 'pub_date').fromNow()
+    ).property 'RSSReader.itemController.@each.pub_date'
 
  # Observe the attached content array's length and refresh the listview on the next RunLoop tick.
   contentLengthDidChange:(->
@@ -79,6 +107,7 @@ RSSReader.SummaryListView = Em.CollectionView.extend
   
 RSSReader.ListItemView = Em.View.extend
   # templateName: 'current'
+  
   classNameBindings: ['read','starred']
   read:(->
     read = @get('content').get 'read'
@@ -92,36 +121,36 @@ RSSReader.ListItemView = Em.View.extend
     console.log 'select', @get 'content'
     content = @get 'content'
     RSSReader.itemNavController.select content
-    jQT.goTo '#current-view','slideleft'
+    jQT.goTo '#current-view','cube'
     # $.mobile.changePage '#current-view',{transition:'slide'}
   dateFromNow:(->
     moment(@get('content').get 'pub_date').fromNow()
   ).property 'RSSReader.itemController.@each.pub_date'
 # - Header
 # - item's NavBar view
-RSSReader.NavbarView = Em.View.extend
+# RSSReader.NavbarView = Em.View.extend
   
-  # property binding
-  currentListBinding:'RSSReader.itemController.currentList'
-  itemCountBinding:'RSSReader.dataController.itemCount'
-  unreadCountBinding:'RSSReader.dataController.unreadCount'
-  starredCountBinding:'RSSReader.dataController.starredCount'
-  readCountBinding:'RSSReader.dataController.readCount'
+#   # property binding
+#   currentListBinding:'RSSReader.itemController.currentList'
+#   itemCountBinding:'RSSReader.dataController.itemCount'
+#   unreadCountBinding:'RSSReader.dataController.unreadCount'
+#   starredCountBinding:'RSSReader.dataController.starredCount'
+#   readCountBinding:'RSSReader.dataController.readCount'
   
-  # Actions
-  showAll:->
-    RSSReader.itemController.clearFilter()
-    @set 'currentList','showAll'
-  showUnread:->
-    RSSReader.itemController.filterBy 'read',false
-    @set 'currentList','showUnread'
+#   # Actions
+#   showAll:->
+#     RSSReader.itemController.clearFilter()
+#     @set 'currentList','showAll'
+#   showUnread:->
+#     RSSReader.itemController.filterBy 'read',false
+#     @set 'currentList','showUnread'
 
-  showRead:->
-    RSSReader.itemController.filterBy 'read',true
-    @set 'currentList','showRead'
-  showStarred:->
-    RSSReader.itemController.filterBy 'starred',true
-    @set 'currentList','showStarred'
+#   showRead:->
+#     RSSReader.itemController.filterBy 'read',true
+#     @set 'currentList','showRead'
+#   showStarred:->
+#     RSSReader.itemController.filterBy 'starred',true
+#     @set 'currentList','showStarred'
 
 # - entry detail view
 RSSReader.EntryItemView = Em.View.extend

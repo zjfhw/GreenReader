@@ -138,9 +138,9 @@ RSSReader.GetItemsFromStore = (feed,currentList, callback)->
     # map each entry to dataController
     items.map (entry) ->
       item={}
-      item.item_id = entry.guid.content
+      item.item_id = entry.link
       item.pub_name = data.query.results.rss.channel.title
-      item.pub_author = entry.author
+      item.pub_author = entry.creator
       item.title = entry.title
       item.feed_link = feedLink
       item.content = entry.description
@@ -151,7 +151,7 @@ RSSReader.GetItemsFromStore = (feed,currentList, callback)->
       # Ensure the summary is less than 128 characters
       # console.log entry.description
       if entry.description
-          item.short_desc = $(entry.description).text().substr(0, 128) + "..."
+          item.short_desc = $('<p>'+entry.description+'</p>').text().substr(0, 128) + "..."
       item.pub_date = new Date entry.pubDate
       item.read = false
       item.key = item.item_id
@@ -182,11 +182,21 @@ RSSReader.getSubscription = ->
 # RSSReader.pageinit = ->
 $(->
   $('.swipe').swipe (evt, info)->
-    console.log 'tap', info.direction
+    console.log 'swipe', info.direction
     if info.direction is 'right'
       RSSReader.itemNavController.prev()
     else if info.direction is 'left'
       RSSReader.itemNavController.next()
+
+  $('.swipeToDelete').swipe (evt, info)->
+    console.log 'swipe', info.direction
+    if info.direction is 'right'
+      $this = $(this)
+      console.log $this.next()
+      if $this.next().hasClass 'hide'
+        $this.next().removeClass 'hide'
+      else
+        $(this).next().addClass 'hide'
   # jQT.initbars()
   # console.log 'pageinit'
   v = RSSReader.get 'listView'

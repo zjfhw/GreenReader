@@ -17,11 +17,13 @@
     <style type="text/css" media="screen">@import "js/libs/jqtouch/jqtouch/jqtouch.css";</style>
     <!-- <style type="text/css" media="screen">@import "js/libs/jqtouch/themes/jqt/theme.css";</style> -->
     <style type="text/css" media="screen">@import "css/themes/artspot/theme.css";</style>
-   
+    
     <style type="text/css" media="screen">@import "js/libs/jqtouch/extensions/jqt.bars/jqt.bars.css";</style>
     
     <style type="text/css" media="screen">@import "js/libs/jqtouch/extensions/jqt.bars/themes/jqt/theme.css";</style>
-     <style type="text/css" media="screen">@import "css/style.css";</style>
+    <style type="text/css" media="screen">@import "css/style.css";</style>
+    <style type="text/css" media="screen">@import "http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css";</style>
+    <!-- <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" type="text/css" media="screen" /> -->
     <!--[if lt IE 9]>
         <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
@@ -30,9 +32,11 @@
     <!-- <script src="js/libs/jqtouch/jqtouch/jquery-1.4.2.js"></script> -->
     <script src="js/libs/moment.min.js"></script>
     <!-- <script src="js/libs/jquery.mobile-1.1.0.min.js"></script> -->
-    <script src="js/libs/jqtouch/jqtouch/jqtouch.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="js/libs/jqtouch/jqtouch/jqtouch-jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/libs/jqtouch/jqtouch/jqtouch.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/libs/jqtouch/jqtouch/jqtouch-jquery.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/libs/jqtouch/extensions/jqt.activityIndicator.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/libs/jqtouch/extensions/jqt.bars/iscroll.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/libs/jqtouch/extensions/jqt.bars/jqt.bars.js" type="text/javascript" charset="utf-8"></script>
     <!-- <script src="js/libs/jqtouch/extensions/jqt.autotitles.js" type="text/javascript" charset="utf-8"></script> -->
     <!-- <script src="js/libs/jqtouch/extensions/jqt.autotitles.js" type="text/javascript" charset="utf-8"></script> -->
     <script src="js/libs/ember-0.9.8.1.js"></script>
@@ -40,150 +44,143 @@
     <!-- <script type="text/javascript" scr = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"> -->
     
 </script>
+
 <script type="text/javascript" charset="utf-8">
   var jQT = $.jQTouch({
-  touchSelector:'.swipe',
+  touchSelector:[ '.swipe', '.swipeToDelete'],
   useFastTouch:true
   });
+  $(function(){
+$('#jqt').ajaxStart(function() {
+  $('.ui-loader').css('display','block');
+    console.log("ajaxStart");
+  }).ajaxSuccess(function() {
+    console.log("ajaxSuccess");
+  $('.ui-loader').css('display','none');
+  }).ajaxError(function() {
+$('.ui-loader').css('display','none');
+    console.log("ajaxError");
+  });
+
+ });
 </script>
 </head>
 <body>
+  <div class="ui-loader ui-corner-all ui-body-a ui-loader-default">
+<span class="ui-icon ui-icon-loading"></span><h1>loading</h1></div>
   <!-- <div id="tabbar"> -->
-    <div id="tabbar">
-      <script type="text/x-handlebars">
- <div>
-      {{#collection RSSReader.FooterNavBarView}}
+  <div id="tabbar">
+    <script type="text/x-handlebars">
+      <div>
+        {{#collection RSSReader.FooterNavBarView}}
         <!-- {{#with content}} -->
-          <a {{bindAttr href="url"}} {{bindAttr mask="icon"}} {{bindAttr class="enabled"}}>
-            {{#if countName}}
-            <small class="badge right">{{count}}</small>
-            {{/if}}
-            <strong>{{title}}</strong>
-          </a>
-      <!-- {{/with}} -->
-      {{/collection}}
-</div>
+        <a {{bindAttr href="url"}} {{bindAttr mask="icon"}} {{bindAttr class="enabled"}}>
+          {{#if countName}}
+          <small class="badge right">{{count}}</small>
+          {{/if}}
+          <strong>{{title}}</strong>
+        </a>
+        <!-- {{/with}} -->
+        {{/collection}}
+      </div>
     </script>
   </div>
 
   <!-- jqt content -->
   <div id="jqt">
-    <div id="addsubscription" class="some_class">
-      <div id="some_id" class="toolbar">
-        <h1>Add Subscription</h1>
-      </div> 
-      <script type="text/x-handlebars">
-      <ul>
-        <li>{{view Em.TextField type="url" placeholder="URL of Source" valueBinding="RSSReader.subscriptionController.addUrl"}}</li>
-         <li>{{view Em.TextField type="text" placeholder="Title (Option)" valueBinding="RSSReader.subscriptionController.addTitle"}}</li>
-      </ul>
-      {{#view RSSReader.AddSubscriptionView}}
-      <a class="greenButton" href="#" {{action "click" on="click"}}>
-        ADD
-</a>
-      {{/view}}
-      </script>
-      <br>
-      <a class="grayButton" href="#">
-        Cancel
-      </a>
-    </div> 
-    
-    <div id="main-view" class="current">
+    <div id="main-view">
       <div class="toolbar">
         <h1>Green Reader</h1>
-        <a href="#addsubscription" class="button">+</a>
+        <a href="#addsubscription" class="slideup add"> + </a>
       </div>
       <div class="s-scrollwrapper" momentum="false" vScrollbar="false">
         <div>
           <div class="info">
-            <p>Add this page to your home screen to view the tabbar demo, custom icon, startup screen and full screen mode.</p>
+            <p>Touch the + button on right top to add some news source</p>
           </div>
-          <h2>Lists</h2>
-          <ul class="rounded">
-            <!-- <li class="arrow"><a href="#list-view" class="cubeleft">engadget</a></li> -->
-            <li class="arrow"><a href="jqtouch.html">Edge to Edge</a></li>
-            <!-- <li><a href="javascript:void(0);" class="swipe">Swipe me!</a></li> -->
-          </ul>
+          
           <h2>Subscriptions</h2>
- <script type="text/x-handlebars">          
-          {{#collection RSSReader.SubscriptionView}}
-          <a href="#list-view">{{content.title}}</a>
-          {{/collection}}
-</script>
-          <!-- <h2>Forms</h2> -->
-          <!-- <ul class="rounded"> -->
-            <!-- <li class="arrow"><a href="#forms">Forms</a></li> -->
-          <!-- </ul> -->
+          <script type="text/x-handlebars">          
+            {{#collection RSSReader.SubscriptionView}}
+            <a href="#list-view" class="swipeToDelete" {{action "getstore" on="click"}}>{{content.title}}</a>
+            <small class="counter color-red" {{action "delete" on="click"}}>Delete</small>
+            {{/collection}}
+          </script>
         </div>
       </div>
-    </div>
 
-    
-    <script type="text/x-handlebars" data-template-name="listview" id="listview">
+      <script type="text/x-handlebars" data-template-name="listview" id="listview">
 
-      <div class="toolbar">
-      <a href="#" class="back">返回</a>
-      <h1></h1>
-      <!-- <a {{action "refresh" on="click"}} class="button">Refresh</a> -->
-      </div>
-
-      <!-- {{#view RSSReader.NavbarView}} -->
-      <!-- <div class="navbar"> -->
-      <!--   <ul> -->
-      <!--     <li><a {{action "showAll" on="click"}}>{{itemCount}} Items</a></li> -->
-      <!--     <li><a {{action "showUnread" on="click"}}>{{unreadCount}} Unread</a></li> -->
-      <!--     <li><a {{action "showStarred" on="click"}}>{{starredCount}} Starred</a></li> -->
-      <!--     <li><a {{action "showRead" on="click"}}>{{readCount}} Read</a></li> -->
-      <!--   </ul> -->
-      <!-- </div> -->
-      <!-- {{/view}} -->
-
-      <div class="s-scrollwrapper pullable">
-        <div id="pulltoupdate" style="left:0px;">
-          <div id="pullDown" class="">
-			      <span class="pullDownIcon"></span><span class="pullDownLabel">Pull down to refresh...</span>
-		      </div>
-          {{#collection RSSReader.SummaryListView}}
-          {{content.title}}
-          <p>
-            <em style="white-space:normal;white-space: normal;font-size: 14px;">
-              {{content.short_desc}}
-            </em>
-          </p>
-          <small style="width:auto;">{{dateFromNow}}</small>
-          {{/collection}}
+        <div class="toolbar">
+          <a href="#" class="back">Back</a>
+          <h1></h1>
+          <!-- <a {{action "refresh" on="click"}} class="button">Refresh</a> -->
         </div>
-      </div>
-    </script>
 
-    <script type="text/x-handlebars" data-template-name="current">
-      {{#view RSSReader.EntryItemView}}
-      <div class="toolbar">
-      <a href="#" class="back">Back</a>
-      <h1>{{content.title}}</h1>
-</div>
-      {{/view}}
-<div class="s-scrollwrapper">
- <div class="swipe">
-      {{#if RSSReader.itemNavController.currentItem}}
+        <div class="s-scrollwrapper pullable">
+          <div id="pulltoupdate" style="left:0px;">
+            <div id="pullDown" class="">
+			        <span class="pullDownIcon"></span><span class="pullDownLabel">Pull down to refresh...</span>
+		        </div>
+            {{#collection RSSReader.SummaryListView}}
+            {{content.title}}
+                <em style="white-space:normal;font-size: 14px;">
+                {{content.short_desc}}
+              </em>
+            <small style="width:auto;">{{dateFromNow}}</small>
+            {{/collection}}
+          </div>
+        </div>
+      </script>
+
+      <script type="text/x-handlebars" data-template-name="current">
         {{#view RSSReader.EntryItemView}}
-        <h1>{{content.title}}</h1>
-        <span class="author">{{content.pub_author}}</span>
-        <hr />
-        <p class="post-content">{{{content.content}}}</p>
-        {{/view}}
-        {{/if}}
-</div>
+        <div class="toolbar">
+          <a href="#" class="back">Back</a>
+          <h1>{{content.title}}</h1>
         </div>
-    </script>
-  </div>
-  
-  <script src="js/dev-helper.js"></script>
-  <script src="js/plugins.js"></script>
-  <script src="js/init.js"></script>
-  <!-- <script src="js/jqm.js"></script> -->
-  <script src="js/app.js"></script>
-  <script src="js/libs/jqtouch/extensions/jqt.bars/jqt.bars.js" type="text/javascript" charset="utf-8"></script>
+        {{/view}}
+        <div class="s-scrollwrapper">
+          <div class="swipe">
+            {{#if RSSReader.itemNavController.currentItem}}
+            {{#view RSSReader.EntryItemView}}
+            <h1>{{content.title}}</h1>
+            <span class="author">{{content.pub_author}}</span>
+            <hr />
+            <p class="post-content">{{{content.content}}}</p>
+            {{/view}}
+            {{/if}}
+          </div>
+        </div>
+      </script>
+    </div>
+<div id="addsubscription">
+      <div  class="toolbar">
+        <h1>Add Subscription</h1>
+      </div> 
+      <div class="scroll">
+        <script type="text/x-handlebars">
+          <ul class="rounded">
+            <li>{{view Em.TextField type="url" placeholder="URL of Source" valueBinding="RSSReader.subscriptionController.addUrl"}}</li>
+            <li>{{view Em.TextField type="text" placeholder="Title (Option)" valueBinding="RSSReader.subscriptionController.addTitle"}}</li>
+          </ul>
+          {{#view RSSReader.AddSubscriptionView}}
+          <a class="greenButton" href="#main-view" {{action "click" on="click"}}>
+            ADD
+          </a>
+          {{/view}}
+        </script>
+        <br>
+        <a class="grayButton" href="#">
+          Cancel
+        </a>
+      </div> 
+    </div>
+    <!-- <script src="js/dev-helper.js"></script> -->
+    <script src="js/plugins.js"></script>
+    <script src="js/init.js"></script>
+    <!-- <script src="js/jqm.js"></script> -->
+    <script src="js/app.js"></script>
+    <!-- <script src="js/libs/jqtouch/extensions/jqt.bars/jqt.bars.js" type="text/javascript" charset="utf-8"></script> -->
 </body>
 </html>
