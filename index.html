@@ -95,14 +95,15 @@ $('.ui-loader').css('display','none');
       </div>
       <div class="s-scrollwrapper" momentum="false" vScrollbar="false">
         <div>
+          <script type="text/x-handlebars">    
+          {{#unless RSSReader.SubscriptionView.content.length}}
           <div class="info">
-            <p>Touch the + button on right top to add some news source</p>
+            <p>Press  the + button on right top to add some news source</p>
           </div>
-          
-          <h2>Subscriptions</h2>
-          <script type="text/x-handlebars">          
+          {{/unless}}
+               
             {{#collection RSSReader.SubscriptionView}}
-            <a href="#list-view" class="swipeToDelete" {{action "getstore" on="click"}}>{{content.title}}</a>
+            <a href="#list-view" class="swipeToDelete" {{action "getstore" on="click"}}>{{{content.title}}}</a>
             <small class="counter color-red" {{action "delete" on="click"}}>Delete</small>
             {{/collection}}
           </script>
@@ -113,7 +114,8 @@ $('.ui-loader').css('display','none');
 
         <div class="toolbar">
           <a href="#" class="back">Back</a>
-          <h1></h1>
+          <h1>{{{RSSReader.subscriptionController.currentSubscription.title}}}</h1>
+          <a class="button">mark all as Read </a>
           <!-- <a {{action "refresh" on="click"}} class="button">Refresh</a> -->
         </div>
 
@@ -124,10 +126,12 @@ $('.ui-loader').css('display','none');
 		        </div>
             {{#collection RSSReader.SummaryListView}}
             {{content.title}}
-                <em style="white-space:normal;font-size: 14px;">
+            <small style="width:auto;">{{dateFromNow}}</small>
+            <p>
+            <em style="white-space:normal;font-size: 14px;">
                 {{content.short_desc}}
               </em>
-            <small style="width:auto;">{{dateFromNow}}</small>
+            </p>
             {{/collection}}
           </div>
         </div>
@@ -137,7 +141,7 @@ $('.ui-loader').css('display','none');
         {{#view RSSReader.EntryItemView}}
         <div class="toolbar">
           <a href="#" class="back">Back</a>
-          <h1>{{content.title}}</h1>
+          <h1>{{{content.title}}}</h1>
         </div>
         {{/view}}
         <div class="s-scrollwrapper swipe">
@@ -146,7 +150,7 @@ $('.ui-loader').css('display','none');
             {{#view RSSReader.EntryItemView}}
             <h1>{{content.title}}</h1>
             <span class="author">{{content.pub_author}}</span>
-            <hr />
+            <hr/>
             <p class="post-content">{{{content.content}}}</p>
             {{/view}}
             {{/if}}
@@ -155,20 +159,33 @@ $('.ui-loader').css('display','none');
       </script>
     </div>
 <div id="addsubscription">
-      <div  class="toolbar">
-        <h1>Add Subscription</h1>
-      </div> 
+      <!-- <div  class="toolbar"> -->
+      <!--   <h1>Add Subscription</h1> -->
+      <!-- </div>  -->
       <div class="scroll">
         <script type="text/x-handlebars">
-          <ul class="rounded">
-            <li>{{view Em.TextField type="url" placeholder="URL of Source" valueBinding="RSSReader.subscriptionController.addUrl"}}</li>
-            <li>{{view Em.TextField type="search" placeholder="Keywords" valueBinding="RSSReader.subscriptionController.query"}}</li>
-          </ul>
-          {{#view RSSReader.AddSubscriptionView}}
-          <a class="greenButton" href="#main-view" {{action "click" on="click"}}>
-            ADD
-          </a>
-          {{/view}}
+          <form id="search-news" method="get">
+          <div class="ui-input-search ui-shadow-inset ui-btn-corner-all ui-btn-shadow ui-icon-searchfield ui-body-c">
+            <input type="search" name="q" data-type="search" class="ui-input-text ui-body-c"  placeholder="Keywords">
+            </div>
+          </form>
+          
+          {{#collection RSSReader.QueryResultView}}
+           <p> {{{content.title}}}</p>
+          <em>{{content.url}}</em>
+          {{/collection}}
+          
+          <!-- <ul class="rounded"> -->
+          <!--   <li>{{view Em.TextField type="url" placeholder="URL of Source" valueBinding="RSSReader.subscriptionController.addUrl"}}</li> -->
+          <!--   <li>{{view Em.TextField type="search" placeholder="Keywords" valueBinding="RSSReader.subscriptionController.query"}}</li> -->
+          <!-- </ul> -->
+          <!-- {{#view RSSReader.AddSubscriptionView}} -->
+          <!-- <a class="greenButton" href="#main-view" {{action "click" on="click"}}> -->
+          <!--   ADD -->
+          <!-- </a> -->
+          <!-- {{/view}} -->
+
+          
         </script>
         <br>
         <a class="grayButton" href="#">

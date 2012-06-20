@@ -70,32 +70,42 @@ listNavJson = [
 
 currentNavJson = [
   {
-    url: '#list-view',
-    title: 'Back',
-    icon: 'css/png/glyphicons_051_eye_open.png'
+    url: '#',
+    title: 'Mark as Unread',
+    icon: 'css/png/glyphicons_052_eye_close.png',
+    action: 'toggleUnread'
   }, {
     url: '#',
     title: 'Star',
-    icon: 'css/png/glyphicons_071_book.png'
+    icon: 'css/png/glyphicons_049_star.png',
+    action: 'toggleStar'
   }, {
     url: '#',
     title: 'Share',
-    icon: 'css/png/glyphicons_049_star.png'
+    icon: 'css/png/glyphicons_326_share.png',
+    action: "share"
   }, {
     url: '#',
     title: 'Read in Browser',
-    icon: 'css/png/glyphicons_087_log_book.png'
+    icon: 'css/png/glyphicons_222_share.png',
+    action: "inBrowser"
   }
 ];
 
 RSSReader.FindFeed = function(query) {
-  return $.getJSON('https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&q=' + query, function(data) {
-    return console.log(data);
-  });
+  if (query.substring(0, 6) === 'q=http') {
+    GetItemsFromStore(query.substr(2));
+    return jQT.goTo('main-view', 'flip');
+  } else {
+    return $.getJSON('https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&' + query + '&callback=?', function(data) {
+      console.log('query', data, data.responseData.entries);
+      return RSSReader.queryResultController.addItem(data.responseData.entries);
+    });
+  }
 };
 
 RSSReader.GetItemsFromStore = function(feed, currentList, callback) {
-  var feedPipeURL, items;
+  var items;
   store = Lawnchair({
     name: feed,
     record: 'entry'
@@ -109,25 +119,23 @@ RSSReader.GetItemsFromStore = function(feed, currentList, callback) {
     return console.log('entries load form local:', arr.length);
   });
   if (!feed) {
-    feed = 'http://cn.engadget.com/rss.xml';
+    alert('no url');
   }
   feed = encodeURIComponent(feed);
-  feedPipeURL = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'";
-  feedPipeURL += feed + "'&format=json";
-  console.log('getting sourc as json', feedPipeURL);
-  return $.getJSON(feedPipeURL, function(data) {
+  console.log('getting sourc as json', feed);
+  return $.getJSON('https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&q=' + feed + '&callback=?', function(data) {
     var feedLink;
-    console.log(data.query.results);
-    if (!data.query.results) {
+    console.log(data.responseData.feed);
+    if (!data.responseData.feed) {
       alert('check your url');
     }
-    items = data.query.results.rss.channel.item;
-    feedLink = data.query.results.rss.channel.link;
+    items = data.responseData.feed.entries;
+    feedLink = data.responseData.feed.feedUrl;
     items.map(function(entry) {
       var item;
       item = {};
       item.item_id = entry.link;
-      item.pub_name = data.query.results.rss.channel.title;
+      item.pub_name = data.responseData.feed.title;
       item.pub_author = entry.creator;
       item.title = entry.title;
       item.feed_link = feedLink;
@@ -182,6 +190,10 @@ RSSReader.getSubscription = function() {
 
 $(function() {
   var c, v;
+  $('#search-news').live('submit', function() {
+    console.log('search news', $(this).serialize());
+    return RSSReader.FindFeed($(this).serialize());
+  });
   $('.swipe').swipe(function(evt, info) {
     console.log('swipe', info.direction);
     if (info.direction === 'right') {
@@ -220,26 +232,17 @@ $(function() {
   }
   $('#list-view').live('pageAnimationEnd', function(event, info) {
     if (info.direction === 'in') {
-      RSSReader.navbarController.set('currentPage', listNavJson);
-      return Em.run.next(function() {
-        return jQT.initTabbar();
-      });
+      return RSSReader.navbarController.set('currentPage', listNavJson);
     }
   });
   $('#main-view').live('pageAnimationEnd', function(event, info) {
     if (info.direction === 'in') {
-      RSSReader.navbarController.set('currentPage', mainNavJson);
-      return Em.run.next(function() {
-        return jQT.initTabbar();
-      });
+      return RSSReader.navbarController.set('currentPage', mainNavJson);
     }
   });
   return $('#current-view').live('pageAnimationEnd', function(event, info) {
     if (info.direction === 'in') {
-      RSSReader.navbarController.set('currentPage', currentNavJson);
-      return Em.run.next(function() {
-        return jQT.initTabbar();
-      });
+      return RSSReader.navbarController.set('currentPage', currentNavJson);
     }
   });
 });
@@ -282,6 +285,11 @@ RSSReader.pullinit = function() {
     }
   });
 };
+
+/*
+  Create Controller
+*/
+
 
 RSSReader.dataController = Em.ArrayController.create({
   content: [],
@@ -407,6 +415,9 @@ RSSReader.itemNavController = Em.Object.create({
       return store.save(entry);
     });
   },
+  toggleUnread: function() {
+    return this.toggleRead(false);
+  },
   toggleStar: function(star) {
     var key;
     if (star === void 0) {
@@ -442,16 +453,15 @@ RSSReader.navbarController = Em.ArrayController.create({
   itemCountBinding: 'RSSReader.dataController.itemCount',
   currentPage: listNavJson,
   changeTab: function() {
-    var btn, _i, _len, _ref;
+    var btn, _i, _len, _ref, _results;
     this.clear();
     _ref = this.get('currentPage');
+    _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       btn = _ref[_i];
-      this.pushObject(RSSReader.NavButton.create(btn));
+      _results.push(this.pushObject(RSSReader.NavButton.create(btn)));
     }
-    return Em.run.next(function() {
-      return jQT.initTabbar();
-    });
+    return _results;
   },
   pageChange: (function() {
     console.log('page change');
@@ -463,8 +473,21 @@ RSSReader.navbarController = Em.ArrayController.create({
   }).observes('itemCount')
 });
 
+RSSReader.queryResultController = Em.ArrayController.create({
+  content: [],
+  addItem: function(items) {
+    var $this;
+    this.clear();
+    $this = this;
+    return items.map(function(item) {
+      return $this.pushObject(RSSReader.QueryResult.create(item));
+    });
+  }
+});
+
 RSSReader.subscriptionController = Em.ArrayController.create({
   content: [],
+  currentSubscription: null,
   addUrl: null,
   query: '',
   addItem: function(item) {
@@ -475,7 +498,6 @@ RSSReader.subscriptionController = Em.ArrayController.create({
         title: this.get('query')
       };
     }
-    RSSReader.FindFeed(this.get('query'));
     exists = this.filterProperty('url', item.url).length;
     if (exists === 0) {
       item.key = item.url;
@@ -531,15 +553,26 @@ RSSReader.NavButton = Em.Object.extend({
   url: null,
   title: null,
   icon: null,
+  currentItemBinding: 'RSSReader.itemNavController.currentItem',
   countName: null,
   count: (function() {
     return this.get(this.get('countName'));
   }).property('countName'),
   enabled: (function() {
     console.log(this.get('currentList'), this.get('action'));
+    if (this.get('currentItem')) {
+      return (this.get('currentItem').starred === true && this.get('action') === 'toggleStar') || this.get('currentList') === this.get('action');
+    }
     return this.get('currentList') === this.get('action');
   }).property('currentList'),
   action: null
+});
+
+RSSReader.QueryResult = Em.Object.extend({
+  contentSnippet: null,
+  link: null,
+  title: null,
+  url: null
 });
 
 RSSReader.Subscription = Em.Object.extend({
@@ -570,12 +603,16 @@ RSSReader.SubscriptionView = Em.CollectionView.extend({
     }).property('content'),
     getstore: function() {
       console.log('click', this.get('elementId'));
-      return RSSReader.GetItemsFromStore(this.get('elementId'));
+      RSSReader.GetItemsFromStore(this.get('elementId'));
+      return RSSReader.subscriptionController.set("currentSubscription", this.get('content'));
     },
     "delete": function() {
       console.log('delete', this.get('elementId'));
       return RSSReader.subscriptionController.removeItem(this.get('elementId'));
     }
+  }),
+  emptyView: Ember.View.extend({
+    template: Ember.Handlebars.compile("The subscription is empty")
   }),
   contentLengthDidChange: (function() {
     console.log('subscription changed', this);
@@ -592,15 +629,39 @@ RSSReader.AddSubscriptionView = Em.View.extend({
   }
 });
 
+RSSReader.QueryResultView = Em.CollectionView.extend({
+  contentBinding: 'RSSReader.queryResultController.content',
+  tagName: 'ul',
+  classNames: ['plastic'],
+  itemViewClass: Em.View.extend({
+    tagName: 'li',
+    click: function() {
+      RSSReader.subscriptionController.addItem(this.get('content'));
+      return jQT.goTo('#main-view', 'flipleft');
+    }
+  })
+});
+
 RSSReader.FooterNavBarView = Em.CollectionView.extend({
   contentBinding: 'RSSReader.navbarController.content',
   tagName: 'ul',
   itemViewClass: Em.View.extend({
-    enabled: true,
     tagName: 'li',
+    didInsertElement: function() {
+      return Em.run.once(function() {
+        return jQT.initTabbar();
+      });
+    },
     click: function() {
-      console.log(this.get('content').get('currentList'));
-      return RSSReader.itemController[this.get('content').get('action')]();
+      var $content;
+      console.log(this.get('content').get('currentList'), this.get('content'));
+      $content = this.get('content');
+      if (RSSReader.itemController[this.get('content').get('action')]) {
+        return RSSReader.itemController[this.get('content').get('action')]();
+      } else if (RSSReader.itemNavController[this.get('content').get('action')]) {
+        RSSReader.itemNavController[this.get('content').get('action')]();
+        return console.log('in itemNavController');
+      }
     }
   })
 });

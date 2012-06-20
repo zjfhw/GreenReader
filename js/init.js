@@ -6,7 +6,7 @@
       var options =  $.extend({}, options);
       
       console.log(options)
-      if(that.data('iscroll'))
+      if(that.data('iscroll') && !options)
         arguments.callee.object  =that.data('iscroll')
         else
 			arguments.callee.object  = new iScroll(this.get(0), options);

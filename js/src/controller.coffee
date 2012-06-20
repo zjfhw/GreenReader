@@ -1,6 +1,6 @@
-#
-# create Controller
-#
+###
+  Create Controller
+###
 # Data Controller: Opertations of rss data
 
 RSSReader.dataController = Em.ArrayController.create
@@ -139,6 +139,8 @@ RSSReader.itemNavController = Em.Object.create
     store.get key,(entry)->
       entry.read = read
       store.save entry
+  toggleUnread: ->
+    @toggleRead(false)
 
   toggleStar:(star) ->
     if star is undefined
@@ -166,10 +168,8 @@ RSSReader.navbarController = Em.ArrayController.create
   changeTab:->
     @clear()
     @pushObject RSSReader.NavButton.create btn for btn in @get 'currentPage'
-    Em.run.next ->
-      jQT.initTabbar()
   pageChange:(->
-    console.log 'page change'
+    console.log 'page change'    
     @changeTab()
     # jQT.initTabbar()
   ).observes 'currentPage'
@@ -178,6 +178,7 @@ RSSReader.navbarController = Em.ArrayController.create
     @changeTab()
     # jQT.initTabbar()
   ).observes 'itemCount'
+
   # mainPageTab:->
   #   @clear()
   #   @pushObject RSSReader.NavButton.create btn for btn in mainNavJson
@@ -186,9 +187,17 @@ RSSReader.navbarController = Em.ArrayController.create
   #   @pushObject RSSReader.NavButton.create btn for btn in currentNavJson
   # # subsPage:->
 
+RSSReader.queryResultController = Em.ArrayController.create
+  content:[]
+  addItem:(items)->
+    @clear()
+    $this=@
+    items.map (item) ->
+      $this.pushObject RSSReader.QueryResult.create item
     
 RSSReader.subscriptionController = Em.ArrayController.create
   content: []
+  currentSubscription:null
   addUrl:null
   query:''
   # add item to controller if it's not exists already
@@ -197,7 +206,7 @@ RSSReader.subscriptionController = Em.ArrayController.create
       item=
         url:@get 'addUrl'
         title:@get 'query'
-    RSSReader.FindFeed @get 'query'
+    # RSSReader.FindFeed @get 'query'
     exists = @filterProperty('url',item.url).length
     if exists is 0
       item.key = item.url

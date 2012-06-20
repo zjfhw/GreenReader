@@ -26,6 +26,7 @@ RSSReader.NavButton = Em.Object.extend
   url:null
   title:null
   icon:null
+  currentItemBinding:'RSSReader.itemNavController.currentItem'
   countName:null
   count:(->
     # console.log @get('countName'), RSSReader.itemController.get @get 'countName'
@@ -33,21 +34,16 @@ RSSReader.NavButton = Em.Object.extend
   ).property 'countName'
   enabled:(->
     console.log @get('currentList') ,@get 'action'
-    @get('currentList') is @get 'action'
-    # cn = @get 'action'
-    # if cn
-    #   if  @get('currentList') is 'showDefault'
-    #     console.log @get 'countName'
-    #     return 'unreadCount' is @get 'countName'
-    #   else
-    #     str=cn.replace('Count','')
-    #     console.log @get('currentList') ,'show'+ str.charAt(0).toUpperCase()+str.substr(1)
-    #     return @get('currentList') is 'show'+ str.charAt(0).toUpperCase()+str.substr(1)
-    # else
-    #   return false
+    if @get('currentItem')
+      return (@get('currentItem').starred is true and @get('action') is 'toggleStar') or @get('currentList') is @get('action')
+    @get('currentList') is @get('action')
   ).property 'currentList'
   action:null
-
+RSSReader.QueryResult = Em.Object.extend
+  contentSnippet:null
+  link:null
+  title:null
+  url:null
 RSSReader.Subscription = Em.Object.extend
   url:null
   title:null

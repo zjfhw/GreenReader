@@ -80,24 +80,28 @@ listNavJson=[
 ]
 currentNavJson=[
   {
-    url:'#list-view'
-    title:'Back'
-    icon:'css/png/glyphicons_051_eye_open.png'
+    url:'#'
+    title:'Mark as Unread'
+    icon:'css/png/glyphicons_052_eye_close.png'
+    action:'toggleUnread'
   },
   {
     url:'#'
     title:'Star'
-    icon:'css/png/glyphicons_071_book.png'
+    icon:'css/png/glyphicons_049_star.png'
+    action:'toggleStar'
   },
   {
     url:'#'
     title:'Share'
-    icon:'css/png/glyphicons_049_star.png'
+    icon:'css/png/glyphicons_326_share.png'
+    action:"share"
   },
   {
     url:'#'
     title:'Read in Browser'
-    icon:'css/png/glyphicons_087_log_book.png'
+    icon:'css/png/glyphicons_222_share.png'
+    action:"inBrowser"
    }
 ]  
     # RSSReader.initPullToRefresh()
@@ -108,8 +112,14 @@ currentNavJson=[
 # Get Items from rss source #
 #############################
 RSSReader.FindFeed = (query)->
-  $.getJSON 'https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&q='+query,(data)->
-    console.log data
+  if query.substring(0,6) is 'q=http'
+    GetItemsFromStore(query.substr(2))
+    jQT.goTo 'main-view','flip'
+  else
+    $.getJSON 'https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&'+query+'&callback=?',(data)->
+      console.log 'query' , data,data.responseData.entries
+      RSSReader.queryResultController.addItem data.responseData.entries
+
 
 RSSReader.GetItemsFromStore = (feed,currentList, callback)->
   store = Lawnchair
@@ -123,28 +133,28 @@ RSSReader.GetItemsFromStore = (feed,currentList, callback)->
     console.log 'entries load form local:', arr.length
   # feed source
   if not feed
-    feed = 'http://cn.engadget.com/rss.xml'
+    alert 'no url'
   feed = encodeURIComponent feed
   # Feed parser that supports CORS and returns data as a JSON string
   # select * from xml where url='http://cn.engadget.com/tag/breaking+news/rss.xml'
-  feedPipeURL = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'"
-  feedPipeURL += feed + "'&format=json"
+  # feedPipeURL = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'"
+  # feedPipeURL += feed + "'&format=json"
+  
+  console.log 'getting sourc as json',feed
 
-  console.log 'getting sourc as json',feedPipeURL
-
-  $.getJSON feedPipeURL,(data)->
-    console.log data.query.results
-    if not data.query.results
+  $.getJSON 'https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&q='+feed+'&callback=?',(data)->
+    console.log data.responseData.feed
+    if not data.responseData.feed
       alert 'check your url'
-    items = data.query.results.rss.channel.item
+    items =  data.responseData.feed.entries
 
-    feedLink = data.query.results.rss.channel.link
+    feedLink = data.responseData.feed.feedUrl
 
     # map each entry to dataController
     items.map (entry) ->
       item={}
       item.item_id = entry.link
-      item.pub_name = data.query.results.rss.channel.title
+      item.pub_name = data.responseData.feed.title
       item.pub_author = entry.creator
       item.title = entry.title
       item.feed_link = feedLink
@@ -186,6 +196,10 @@ RSSReader.getSubscription = ->
 ## on Document Ready
 # RSSReader.pageinit = ->
 $(->
+  $('#search-news').live 'submit', ->
+    console.log 'search news', $(this).serialize()
+    RSSReader.FindFeed $(this).serialize()
+    # RSSReader.FindFeed
   $('.swipe').swipe (evt, info)->
     console.log 'swipe', info.direction
     if info.direction is 'right'
@@ -223,20 +237,20 @@ $(->
   $('#list-view').live 'pageAnimationEnd', (event,info)->
     if info.direction is 'in'
       RSSReader.navbarController.set 'currentPage',listNavJson
-      Em.run.next ->
-        jQT.initTabbar()
+      # Em.run.next ->
+      #   jQT.initTabbar()
       # jQT.initTabbar()
   $('#main-view').live 'pageAnimationEnd', (event,info)->
     if info.direction is 'in'
       RSSReader.navbarController.set 'currentPage',mainNavJson
-      Em.run.next ->
-        jQT.initTabbar()
+      # Em.run.next ->
+        # jQT.initTabbar()
       # jQT.initTabbar()
   $('#current-view').live 'pageAnimationEnd', (event,info)->
     if info.direction is 'in'
       RSSReader.navbarController.set 'currentPage',currentNavJson
-      Em.run.next ->
-        jQT.initTabbar()
+      # Em.run.next ->
+        # jQT.initTabbar()
 )
 
 pullDownAction = (scroll)->

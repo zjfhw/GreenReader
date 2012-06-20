@@ -24,9 +24,13 @@ RSSReader.SubscriptionView = Em.CollectionView.extend
     getstore:->
       console.log 'click',@get 'elementId'
       RSSReader.GetItemsFromStore(@get 'elementId')
+      RSSReader.subscriptionController.set "currentSubscription",@get 'content'
     delete:->
       console.log 'delete',@get 'elementId'
       RSSReader.subscriptionController.removeItem @get 'elementId'
+  emptyView: Ember.View.extend({
+      template: Ember.Handlebars.compile("The subscription is empty")
+    })
   contentLengthDidChange:(->
     console.log('subscription changed',this)
     Em.run.next( ->
@@ -38,7 +42,17 @@ RSSReader.AddSubscriptionView = Em.View.extend
   click:->
     RSSReader.subscriptionController.addItem()
     jQT.goTo '#main-view','flipleft'
-      
+
+RSSReader.QueryResultView = Em.CollectionView.extend
+  contentBinding:'RSSReader.queryResultController.content'
+  tagName:'ul'
+  classNames:['plastic']
+  itemViewClass:Em.View.extend
+    tagName:'li'
+    click:->
+      RSSReader.subscriptionController.addItem @get 'content'
+      jQT.goTo '#main-view','flipleft'
+    
 RSSReader.FooterNavBarView = Em.CollectionView.extend
   contentBinding:'RSSReader.navbarController.content'
   # templateName:'navbar'
@@ -46,15 +60,21 @@ RSSReader.FooterNavBarView = Em.CollectionView.extend
   tagName:'ul'
   itemViewClass:Em.View.extend
     # classNameBindings:['enabled']
-    enabled:true# ->
       # cl=@get('content').get 'currentList'
       # enable = cl is 'show'+@get('content').get 'title'
     tagName:'li'
+    didInsertElement:->
+      Em.run.once ->
+        jQT.initTabbar()
     click:->
       # @get('content').set 'currentList',@get('content').get 'action'
-      console.log @get('content').get 'currentList'
-      RSSReader.itemController[@get('content').get 'action']()
-      
+      console.log @get('content').get('currentList') ,@get('content')
+      $content = @get 'content'
+      if RSSReader.itemController[@get('content').get 'action']
+        RSSReader.itemController[@get('content').get 'action']()
+      else if RSSReader.itemNavController[@get('content').get 'action']
+        RSSReader.itemNavController[@get('content').get 'action']()
+        console.log 'in itemNavController'
   
   # contentWithIndices:(->
   #   content.map (i,idx)->
