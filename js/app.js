@@ -22,17 +22,13 @@ RSSReader = Em.Application.create({
 
 mainNavJson = [
   {
-    url: '#help-view',
-    title: 'Help',
-    icon: 'css/png/glyphicons_194_circle_question_mark.png'
+    url: '#main-view',
+    title: 'Home',
+    icon: 'css/png/glyphicons_020_home.png'
   }, {
     url: '#about-view',
     title: 'About',
     icon: 'css/png/glyphicons_195_circle_info.png'
-  }, {
-    url: '#search-view',
-    title: 'Search',
-    icon: 'css/png/glyphicons_027_search.png'
   }, {
     url: '#settings-view',
     title: 'Setting',
@@ -93,19 +89,23 @@ currentNavJson = [
 ];
 
 RSSReader.FindFeed = function(query) {
+  showLoader();
   if (query.substring(0, 6) === 'q=http') {
-    GetItemsFromStore(query.substr(2));
+    RSSReader.GetItemsFromStore(query.substr(2));
+    hideLoader();
     return jQT.goTo('main-view', 'flip');
   } else {
     return $.getJSON('https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&' + query + '&callback=?', function(data) {
       console.log('query', data, data.responseData.entries);
-      return RSSReader.queryResultController.addItem(data.responseData.entries);
+      RSSReader.queryResultController.addItem(data.responseData.entries);
+      return hideLoader();
     });
   }
 };
 
 RSSReader.GetItemsFromStore = function(feed, currentList, callback) {
   var items;
+  showLoader();
   store = Lawnchair({
     name: feed,
     record: 'entry'
@@ -120,14 +120,15 @@ RSSReader.GetItemsFromStore = function(feed, currentList, callback) {
   });
   if (!feed) {
     alert('no url');
+    hideLoader();
   }
-  feed = encodeURIComponent(feed);
-  console.log('getting sourc as json', feed);
+  console.log('getting sourc as json', 'https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&q=' + feed + '&callback=?');
   return $.getJSON('https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&q=' + feed + '&callback=?', function(data) {
     var feedLink;
-    console.log(data.responseData.feed);
-    if (!data.responseData.feed) {
+    console.log(data.responseData);
+    if (!data.responseData || !data.responseData.feed) {
       alert('check your url');
+      hideLoader();
     }
     items = data.responseData.feed.entries;
     feedLink = data.responseData.feed.feedUrl;
@@ -139,16 +140,10 @@ RSSReader.GetItemsFromStore = function(feed, currentList, callback) {
       item.pub_author = entry.creator;
       item.title = entry.title;
       item.feed_link = feedLink;
-      item.content = entry.description;
-      if (entry.origLink) {
-        item.item_link = entry.origLink;
-      } else {
-        item.item_link = entry.link;
-      }
-      if (entry.description) {
-        item.short_desc = $('<p>' + entry.description + '</p>').text().substr(0, 128) + "...";
-      }
-      item.pub_date = new Date(entry.pubDate);
+      item.content = entry.content;
+      item.item_link = entry.link;
+      item.short_desc = entry.contentSnippet;
+      item.pub_date = new Date(entry.publishedDate);
       item.read = false;
       item.key = item.item_id;
       if (RSSReader.dataController.addItem(RSSReader.Item.create(item))) {
@@ -159,6 +154,7 @@ RSSReader.GetItemsFromStore = function(feed, currentList, callback) {
       currentList = "showDefault";
     }
     RSSReader.itemController[currentList]();
+    hideLoader();
     if (callback) {
       return callback();
     }
@@ -206,14 +202,14 @@ $(function() {
   $('.swipeToDelete').swipe(function(evt, info) {
     var $this;
     console.log('swipe', info.direction);
+    $this = $(this);
     if (info.direction === 'right') {
-      $this = $(this);
       console.log($this.next());
-      if ($this.next().hasClass('hide')) {
-        return $this.next().removeClass('hide');
-      } else {
-        return $(this).next().addClass('hide');
-      }
+      $this.addClass('delete');
+      return $this.next().removeClass('hide');
+    } else if (info.direction === 'left') {
+      $this.removeClass('delete');
+      return $this.next().addClass('hide');
     }
   });
   v = RSSReader.get('listView');
@@ -338,7 +334,7 @@ RSSReader.itemController = Em.ArrayController.create({
   currentList: 'showDefault',
   refreshList: function(callbackFn) {
     console.log('currentList', this.get('currentList'));
-    return RSSReader.GetItemsFromStore(this.get('currentList'), callbackFn);
+    return RSSReader.GetItemsFromStore(RSSReader.subscriptionController.get('currentSubscription').url, this.get('currentList'), callbackFn);
   },
   filterBy: function(key, value) {
     return this.set('content', RSSReader.dataController.filterProperty(key, value));
@@ -539,7 +535,7 @@ RSSReader.Item = Em.Object.extend({
   content: null,
   pub_name: null,
   pub_author: null,
-  pub_date: new Date(0),
+  pub_date: null,
   feed_link: null,
   item_link: null
 });
@@ -594,7 +590,7 @@ RSSReader.CurrentView = Em.View.extend({
 RSSReader.SubscriptionView = Em.CollectionView.extend({
   contentBinding: 'RSSReader.subscriptionController.content',
   tagName: 'ul',
-  classNames: ['plastic'],
+  classNames: ['plastic', 'view'],
   itemViewClass: Em.View.extend({
     tagName: 'li',
     classNames: ['arrow'],
@@ -612,7 +608,7 @@ RSSReader.SubscriptionView = Em.CollectionView.extend({
     }
   }),
   emptyView: Ember.View.extend({
-    template: Ember.Handlebars.compile("The subscription is empty")
+    template: Ember.Handlebars.compile("Your subscription is empty")
   }),
   contentLengthDidChange: (function() {
     console.log('subscription changed', this);
@@ -620,13 +616,6 @@ RSSReader.SubscriptionView = Em.CollectionView.extend({
       return jQT.setPageHeight();
     });
   }).observes('content.length')
-});
-
-RSSReader.AddSubscriptionView = Em.View.extend({
-  click: function() {
-    RSSReader.subscriptionController.addItem();
-    return jQT.goTo('#main-view', 'flipleft');
-  }
 });
 
 RSSReader.QueryResultView = Em.CollectionView.extend({
@@ -705,28 +694,6 @@ RSSReader.SummaryListView = Em.CollectionView.extend({
       return RSSReader.pullinit();
     });
   }
-});
-
-RSSReader.ListItemView = Em.View.extend({
-  classNameBindings: ['read', 'starred'],
-  read: (function() {
-    var read;
-    return read = this.get('content').get('read');
-  }).property('RSSReader.itemController.@each.read'),
-  starred: (function() {
-    var starred;
-    return starred = this.get('content').get('starred');
-  }).property('RSSReader.itemController.@each.starred'),
-  click: function(evt) {
-    var content;
-    console.log('select', this.get('content'));
-    content = this.get('content');
-    RSSReader.itemNavController.select(content);
-    return jQT.goTo('#current-view', 'cube');
-  },
-  dateFromNow: (function() {
-    return moment(this.get('content').get('pub_date')).fromNow();
-  }).property('RSSReader.itemController.@each.pub_date')
 });
 
 RSSReader.EntryItemView = Em.View.extend({

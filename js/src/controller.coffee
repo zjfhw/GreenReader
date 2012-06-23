@@ -65,7 +65,7 @@ RSSReader.itemController = Em.ArrayController.create
 
   refreshList:(callbackFn)->
     console.log('currentList',@get 'currentList') 
-    RSSReader.GetItemsFromStore @get('currentList'), callbackFn 
+    RSSReader.GetItemsFromStore RSSReader.subscriptionController.get('currentSubscription').url, @get('currentList'), callbackFn 
   # user can filt items by 'read unread starred'...
   filterBy: (key,value)->
     @set 'content', RSSReader.dataController.filterProperty key,value

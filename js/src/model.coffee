@@ -11,7 +11,7 @@ RSSReader.Item = Em.Object.extend
   content: null # full Content of news
   pub_name:null # name of publisher
   pub_author:null
-  pub_date: new Date(0),
+  pub_date: null
   feed_link: null # rss source link
   item_link:null # news item source link
 

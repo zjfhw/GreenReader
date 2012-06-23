@@ -28,20 +28,20 @@ RSSReader = Em.Application.create
 # init Data
 mainNavJson=[
   {
-    url:'#help-view'
-    title:'Help'
-    icon:'css/png/glyphicons_194_circle_question_mark.png'
+    url:'#main-view'
+    title:'Home'
+    icon:'css/png/glyphicons_020_home.png'
   },
   {
     url:'#about-view'
     title:'About'
     icon:'css/png/glyphicons_195_circle_info.png'
   },
-  {
-    url:'#search-view'
-    title:'Search'
-    icon:'css/png/glyphicons_027_search.png'
-  },
+  # {
+  #   url:'#search-view'
+  #   title:'Search'
+  #   icon:'css/png/glyphicons_027_search.png'
+  # },
   {
     url:'#settings-view'
     title:'Setting'
@@ -112,16 +112,19 @@ currentNavJson=[
 # Get Items from rss source #
 #############################
 RSSReader.FindFeed = (query)->
+  showLoader()
   if query.substring(0,6) is 'q=http'
-    GetItemsFromStore(query.substr(2))
+    RSSReader.GetItemsFromStore(query.substr(2))
+    hideLoader()
     jQT.goTo 'main-view','flip'
   else
     $.getJSON 'https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&'+query+'&callback=?',(data)->
       console.log 'query' , data,data.responseData.entries
       RSSReader.queryResultController.addItem data.responseData.entries
-
+      hideLoader()
 
 RSSReader.GetItemsFromStore = (feed,currentList, callback)->
+  showLoader()
   store = Lawnchair
     name:feed
     record:'entry'
@@ -134,18 +137,20 @@ RSSReader.GetItemsFromStore = (feed,currentList, callback)->
   # feed source
   if not feed
     alert 'no url'
-  feed = encodeURIComponent feed
+    hideLoader()
+  # feed = encodeURIComponent feed
   # Feed parser that supports CORS and returns data as a JSON string
   # select * from xml where url='http://cn.engadget.com/tag/breaking+news/rss.xml'
   # feedPipeURL = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'"
   # feedPipeURL += feed + "'&format=json"
   
-  console.log 'getting sourc as json',feed
+  console.log 'getting sourc as json','https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&q='+feed+'&callback=?'
 
   $.getJSON 'https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&q='+feed+'&callback=?',(data)->
-    console.log data.responseData.feed
-    if not data.responseData.feed
+    console.log data.responseData
+    if not data.responseData or not data.responseData.feed
       alert 'check your url'
+      hideLoader()
     items =  data.responseData.feed.entries
 
     feedLink = data.responseData.feed.feedUrl
@@ -158,16 +163,18 @@ RSSReader.GetItemsFromStore = (feed,currentList, callback)->
       item.pub_author = entry.creator
       item.title = entry.title
       item.feed_link = feedLink
-      item.content = entry.description
-      if entry.origLink
-        item.item_link = entry.origLink
-      else
-        item.item_link = entry.link
+      item.content = entry.content
+      # if entry.origLink
+      #   item.item_link = entry.origLink
+      # else
+      item.item_link = entry.link
       # Ensure the summary is less than 128 characters
       # console.log entry.description
-      if entry.description
-          item.short_desc = $('<p>'+entry.description+'</p>').text().substr(0, 128) + "..."
-      item.pub_date = new Date entry.pubDate
+      # if entry.description
+      item.short_desc = entry.contentSnippet
+      # $('<p>'+entry.description+'</p>').text().substr(0, 128) + "..."
+      # console.log new Date(entry.publishedDate)
+      item.pub_date = new Date(entry.publishedDate)
       item.read = false
       item.key = item.item_id
 
@@ -178,9 +185,10 @@ RSSReader.GetItemsFromStore = (feed,currentList, callback)->
     # showList
     RSSReader.itemController[currentList]()
     # execute callback function
+    hideLoader()
     if callback
       callback()     
-
+    
 RSSReader.clearStore = (key,callback)->
   Lawnchair {name:key},->
     this.nuke()
@@ -210,13 +218,14 @@ $(->
 
   $('.swipeToDelete').swipe (evt, info)->
     console.log 'swipe', info.direction
+    $this = $(this)
     if info.direction is 'right'
-      $this = $(this)
       console.log $this.next()
-      if $this.next().hasClass 'hide'
-        $this.next().removeClass 'hide'
-      else
-        $(this).next().addClass 'hide'
+      $this.addClass 'delete'
+      $this.next().removeClass 'hide'
+    else if info.direction is 'left'
+      $this.removeClass 'delete'
+      $this.next().addClass 'hide'
   # jQT.initbars()
   # console.log 'pageinit'
   v = RSSReader.get 'listView'

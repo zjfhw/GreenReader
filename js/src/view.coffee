@@ -14,7 +14,7 @@ RSSReader.CurrentView = Em.View.extend
 RSSReader.SubscriptionView = Em.CollectionView.extend
   contentBinding: 'RSSReader.subscriptionController.content'
   tagName:'ul'
-  classNames:['plastic']
+  classNames:['plastic','view']
   itemViewClass:Em.View.extend
     tagName:'li'
     classNames: ['arrow']
@@ -29,7 +29,7 @@ RSSReader.SubscriptionView = Em.CollectionView.extend
       console.log 'delete',@get 'elementId'
       RSSReader.subscriptionController.removeItem @get 'elementId'
   emptyView: Ember.View.extend({
-      template: Ember.Handlebars.compile("The subscription is empty")
+      template: Ember.Handlebars.compile("Your subscription is empty")
     })
   contentLengthDidChange:(->
     console.log('subscription changed',this)
@@ -38,10 +38,10 @@ RSSReader.SubscriptionView = Em.CollectionView.extend
     )
   ).observes('content.length')
       # GetItemsFromStore()
-RSSReader.AddSubscriptionView = Em.View.extend
-  click:->
-    RSSReader.subscriptionController.addItem()
-    jQT.goTo '#main-view','flipleft'
+# RSSReader.AddSubscriptionView = Em.View.extend
+#   click:->
+#     RSSReader.subscriptionController.addItem()
+#     jQT.goTo '#main-view','flipleft'
 
 RSSReader.QueryResultView = Em.CollectionView.extend
   contentBinding:'RSSReader.queryResultController.content'
@@ -104,10 +104,10 @@ RSSReader.SummaryListView = Em.CollectionView.extend
       jQT.goTo '#current-view','slideleft'
       # $.mobile.changePage '#current-view',{transition:'slide'}
     dateFromNow:(->
-      moment(@get('content').get 'pub_date').fromNow()
+      moment(@get('content').get( 'pub_date')).fromNow()
     ).property 'RSSReader.itemController.@each.pub_date'
 
- # Observe the attached content array's length and refresh the listview on the next RunLoop tick.
+ # Observe the attached content array's length and refresh the listview on the next RunLoop tick
   contentLengthDidChange:(->
     console.log('listview changed',this)
     _self = this
@@ -125,27 +125,28 @@ RSSReader.SummaryListView = Em.CollectionView.extend
   # classNames: ['well','summary'] # view class 
   # css class binding to read and starred
   
-RSSReader.ListItemView = Em.View.extend
-  # templateName: 'current'
+# RSSReader.ListItemView = Em.View.extend
+#   # templateName: 'current'
   
-  classNameBindings: ['read','starred']
-  read:(->
-    read = @get('content').get 'read'
-  ).property('RSSReader.itemController.@each.read')
+#   classNameBindings: ['read','starred']
+#   read:(->
+#     read = @get('content').get 'read'
+#   ).property('RSSReader.itemController.@each.read')
 
-  starred:(->
-    starred = @get('content').get 'starred'
-  ).property 'RSSReader.itemController.@each.starred'
+#   starred:(->
+#     starred = @get('content').get 'starred'
+#   ).property 'RSSReader.itemController.@each.starred'
 
-  click:(evt)->
-    console.log 'select', @get 'content'
-    content = @get 'content'
-    RSSReader.itemNavController.select content
-    jQT.goTo '#current-view','cube'
-    # $.mobile.changePage '#current-view',{transition:'slide'}
-  dateFromNow:(->
-    moment(@get('content').get 'pub_date').fromNow()
-  ).property 'RSSReader.itemController.@each.pub_date'
+#   click:(evt)->
+#     console.log 'select', @get 'content'
+#     content = @get 'content'
+#     RSSReader.itemNavController.select content
+#     jQT.goTo '#current-view','cube'
+#     # $.mobile.changePage '#current-view',{transition:'slide'}
+#   dateFromNow:(->
+#     console.log @get('content').get 'pub_date'
+#     moment(@get('content').get('pub_date')).fromNow()
+#   ).property 'RSSReader.itemController.@each.pub_date'
 # - Header
 # - item's NavBar view
 # RSSReader.NavbarView = Em.View.extend

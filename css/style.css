@@ -94,6 +94,30 @@ a:hover { color: #036; }
   /*background-color: darkgrey;*/
 }
 
+#jqt ul li.arrow a{
+  padding-right: 5px;
+}
+#jqt ul li.arrow a.delete{
+  padding-right: 85px;
+  white-space: nowrap;
+}
+#jqt ul li.arrow small.counter.color-red{
+
+margin-top:-29px;
+margin-bottom:-29px;
+font-size: 11px;
+font-weight: bold;
+line-height: 18px;
+  border: 1px solid #953403; 
+  background: #2567ab; 
+  font-weight: bold; 
+  color: #fff; 
+  cursor: pointer;  text-shadow: 0 -1px 1px #953403; text-decoration: none; background-image: -moz-linear-gradient(top, #ec4a0b, #ad390c); background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #ec4a0b),color-stop(1, #ad390c));   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#ec4a0b', EndColorStr='#ad390c')"; 
+}
+#jqt ul li.arrow small.counter.color-red.hide{
+  display: none;
+}
+
 ul.plastic li em {
   color: yellowGreen;
 }
@@ -107,12 +131,8 @@ img {
   max-width:400px;
   max-height:300px;
 }
-#jqt .color-read {
-  background-color:red;
-}
-#jqt .color-read.hide {
-  display:none;
-}
+
+
 
 /**
  *
