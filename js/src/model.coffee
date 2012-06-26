@@ -29,11 +29,11 @@ RSSReader.NavButton = Em.Object.extend
   currentItemBinding:'RSSReader.itemNavController.currentItem'
   countName:null
   count:(->
-    # console.log @get('countName'), RSSReader.itemController.get @get 'countName'
+    # #console.log @get('countName'), RSSReader.itemController.get @get 'countName'
     @get @get 'countName'
   ).property 'countName'
   enabled:(->
-    console.log @get('currentList') ,@get 'action'
+    #console.log @get('currentList') ,@get 'action'
     if @get('currentItem')
       return (@get('currentItem').starred is true and @get('action') is 'toggleStar') or @get('currentList') is @get('action')
     @get('currentList') is @get('action')

@@ -22,17 +22,19 @@ RSSReader.SubscriptionView = Em.CollectionView.extend
       @get('content').url
     ).property 'content'
     getstore:->
-      console.log 'click',@get 'elementId'
+      #console.log 'click',@get 'elementId'
       RSSReader.GetItemsFromStore(@get 'elementId')
       RSSReader.subscriptionController.set "currentSubscription",@get 'content'
+      console.log 'click', @get 'elementId'
+      jQT.goTo '#list-view', 'slideleft'
     delete:->
-      console.log 'delete',@get 'elementId'
+      #console.log 'delete',@get 'elementId'
       RSSReader.subscriptionController.removeItem @get 'elementId'
   emptyView: Ember.View.extend({
       template: Ember.Handlebars.compile("Your subscription is empty")
     })
   contentLengthDidChange:(->
-    console.log('subscription changed',this)
+    #console.log('subscription changed',this)
     Em.run.next( ->
       jQT.setPageHeight()
     )
@@ -52,7 +54,13 @@ RSSReader.QueryResultView = Em.CollectionView.extend
     click:->
       RSSReader.subscriptionController.addItem @get 'content'
       jQT.goTo '#main-view','flipleft'
-    
+  contentLengthDidChange:(->
+    #console.log('subscription changed',this)
+    Em.run.next( ->
+      jQT.setPageHeight()
+    )
+  ).observes('content.length')
+  
 RSSReader.FooterNavBarView = Em.CollectionView.extend
   contentBinding:'RSSReader.navbarController.content'
   # templateName:'navbar'
@@ -68,13 +76,13 @@ RSSReader.FooterNavBarView = Em.CollectionView.extend
         jQT.initTabbar()
     click:->
       # @get('content').set 'currentList',@get('content').get 'action'
-      console.log @get('content').get('currentList') ,@get('content')
+      #console.log @get('content').get('currentList') ,@get('content')
       $content = @get 'content'
       if RSSReader.itemController[@get('content').get 'action']
         RSSReader.itemController[@get('content').get 'action']()
       else if RSSReader.itemNavController[@get('content').get 'action']
         RSSReader.itemNavController[@get('content').get 'action']()
-        console.log 'in itemNavController'
+        #console.log 'in itemNavController'
   
   # contentWithIndices:(->
   #   content.map (i,idx)->
@@ -98,7 +106,7 @@ RSSReader.SummaryListView = Em.CollectionView.extend
     ).property 'RSSReader.itemController.@each.starred'
 
     click:(evt)->
-      console.log 'select', @get 'content'
+      #console.log 'select', @get 'content'
       content = @get 'content'
       RSSReader.itemNavController.select content
       jQT.goTo '#current-view','slideleft'
@@ -106,10 +114,15 @@ RSSReader.SummaryListView = Em.CollectionView.extend
     dateFromNow:(->
       moment(@get('content').get( 'pub_date')).fromNow()
     ).property 'RSSReader.itemController.@each.pub_date'
-
+    viewDidChange:(->
+    #console.log 'view change'
+      jQT.setPageHeight()
+      # TODO reset iscroll
+      # jQT.refresh_iScroll
+    ).observes 'content'
  # Observe the attached content array's length and refresh the listview on the next RunLoop tick
   contentLengthDidChange:(->
-    console.log('listview changed',this)
+    #console.log('listview changed',this)
     _self = this
     Em.run.next( ->
       jQT.setPageHeight()
@@ -118,7 +131,7 @@ RSSReader.SummaryListView = Em.CollectionView.extend
   contentBinding : 'RSSReader.itemController.content'
   # templateName: 'listview'
   didInsertElement:->
-    console.log 'main insert'
+    #console.log 'main insert'
     Em.run.next(->
       RSSReader.pullinit())
   # tagName: 'article' # view tag
@@ -138,13 +151,13 @@ RSSReader.SummaryListView = Em.CollectionView.extend
 #   ).property 'RSSReader.itemController.@each.starred'
 
 #   click:(evt)->
-#     console.log 'select', @get 'content'
+#     #console.log 'select', @get 'content'
 #     content = @get 'content'
 #     RSSReader.itemNavController.select content
 #     jQT.goTo '#current-view','cube'
 #     # $.mobile.changePage '#current-view',{transition:'slide'}
 #   dateFromNow:(->
-#     console.log @get('content').get 'pub_date'
+#     #console.log @get('content').get 'pub_date'
 #     moment(@get('content').get('pub_date')).fromNow()
 #   ).property 'RSSReader.itemController.@each.pub_date'
 # - Header
@@ -177,7 +190,7 @@ RSSReader.SummaryListView = Em.CollectionView.extend
 RSSReader.EntryItemView = Em.View.extend
   contentBinding: 'RSSReader.itemNavController.currentItem'
   viewDidChange:(->
-    console.log 'view change'
+    #console.log 'view change'
     jQT.setPageHeight()
     # TODO reset iscroll
     # jQT.refresh_iScroll

@@ -64,7 +64,7 @@ RSSReader.itemController = Em.ArrayController.create
   currentList:'showDefault'
 
   refreshList:(callbackFn)->
-    console.log('currentList',@get 'currentList') 
+    #console.log('currentList',@get 'currentList') 
     RSSReader.GetItemsFromStore RSSReader.subscriptionController.get('currentSubscription').url, @get('currentList'), callbackFn 
   # user can filt items by 'read unread starred'...
   filterBy: (key,value)->
@@ -80,7 +80,7 @@ RSSReader.itemController = Em.ArrayController.create
     @set 'currentList','showUnread'
 
   showAll:->
-    console.log 'show all'
+    #console.log 'show all'
     @clearFilter()
     @set 'currentList','showAll'
   showRead:->
@@ -95,6 +95,7 @@ RSSReader.itemController = Em.ArrayController.create
   markAllRead:->
     @forEach (item) ->
       item.set 'read',true
+    RSSReader.navbarController.changeTab()
 
   # property return count of items
   itemCount:(->@get 'length').property '@each'
@@ -169,14 +170,14 @@ RSSReader.navbarController = Em.ArrayController.create
     @clear()
     @pushObject RSSReader.NavButton.create btn for btn in @get 'currentPage'
   pageChange:(->
-    console.log 'page change'    
+    #console.log 'page change'    
     @changeTab()
-    # jQT.initTabbar()
+    jQT.initTabbar()
   ).observes 'currentPage'
   itemCountChange:(->
-    console.log 'itemCount of itemcont change'
+    #console.log 'itemCount of itemcont change'
     @changeTab()
-    # jQT.initTabbar()
+    jQT.initTabbar()
   ).observes 'itemCount'
 
   # mainPageTab:->
@@ -202,25 +203,28 @@ RSSReader.subscriptionController = Em.ArrayController.create
   query:''
   # add item to controller if it's not exists already
   addItem:(item) ->
-    if !item
-      item=
-        url:@get 'addUrl'
-        title:@get 'query'
+   
+    itemToAdd=
+      url:@get 'addUrl'
+      title:@get 'query'
+    if item
+      itemToAdd.url=item.url
+      itemToAdd.title=item.title
     # RSSReader.FindFeed @get 'query'
     exists = @filterProperty('url',item.url).length
     if exists is 0
-      item.key = item.url
-      subscriptionData.save item
-      @pushObject RSSReader.Subscription.create item
-      console.log @get 'content'
+      itemToAdd.key = itemToAdd.url
+      subscriptionData.save itemToAdd
+      @pushObject RSSReader.Subscription.create itemToAdd
+      #console.log @get 'content'
       return true
     else
       false
   removeItem:(key) ->
-    console.log 'deleting',key
+    #console.log 'deleting',key
     item = @filterProperty 'url', key
     if item[0]
-      console.log item,@get('content').length,@get('content').indexOf item[0],@get 'content'
+      #console.log item,@get('content').length,@get('content').indexOf item[0],@get 'content'
       @get('content').removeAt @indexOf(item[0])
     Lawnchair
       name:key
@@ -228,7 +232,7 @@ RSSReader.subscriptionController = Em.ArrayController.create
       ,->
         this.nuke()
     subscriptionData.remove key,->
-      this.all('console.log(subscript.length)')
+      this.all('#console.log(subscript.length)')
      
-    console.log @get('content').length
+    #console.log @get('content').length
      

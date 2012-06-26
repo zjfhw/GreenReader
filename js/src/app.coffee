@@ -4,7 +4,22 @@
 
 # local storage
 # new lawnchair ->
-
+jQT = $.jQTouch
+  touchSelector:[
+    '.swipe'
+    '.swipeToDelete'
+    'a'
+  ]
+  # useFastTouch:true
+  preloadImages:[
+    'css/png/glyphicons_020_home.png'
+    'css/png/glyphicons_195_circle_info.png'
+    'css/png/glyphicons_019_cogwheel.png'
+    'css/png/glyphicons_051_eye_open.png'
+    'css/png/glyphicons_071_book.png'
+    'css/png/glyphicons_049_star.png'
+    'css/png/glyphicons_222_share.png'
+  ]
 store = Lawnchair
   name:'entries'
   record:'entry'
@@ -24,7 +39,8 @@ RSSReader = Em.Application.create
     RSSReader.navbarController.set 'currentPage',mainNavJson
     # RSSReader.pageinit()
     jQT.initbars()
-    
+
+
 # init Data
 mainNavJson=[
   {
@@ -91,12 +107,12 @@ currentNavJson=[
     icon:'css/png/glyphicons_049_star.png'
     action:'toggleStar'
   },
-  {
-    url:'#'
-    title:'Share'
-    icon:'css/png/glyphicons_326_share.png'
-    action:"share"
-  },
+  # {
+  #   url:'#'
+  #   title:'Share'
+  #   icon:'css/png/glyphicons_326_share.png'
+  #   action:"share"
+  # },
   {
     url:'#'
     title:'Read in Browser'

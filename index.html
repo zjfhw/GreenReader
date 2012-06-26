@@ -8,14 +8,8 @@
     <title>Greader</title>
     <meta name="description" content=""/>
     <meta name="author" content=""/>
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <!-- <link rel="stylesheet" href="js/libs/jquery.mobile-1.1.0.min.css" type="text/css" media="screen" /> -->
     <style type="text/css" media="screen">@import "js/libs/jqtouch/jqtouch/jqtouch.css";</style>
-    <!-- <style type="text/css" media="screen">@import "js/libs/jqtouch/themes/jqt/theme.css";</style> -->
     <style type="text/css" media="screen">@import "css/themes/artspot/theme.css";</style>
     
     <style type="text/css" media="screen">@import "js/libs/jqtouch/extensions/jqt.bars/jqt.bars.css";</style>
@@ -23,54 +17,29 @@
     <style type="text/css" media="screen">@import "js/libs/jqtouch/extensions/jqt.bars/themes/jqt/theme.css";</style>
     <style type="text/css" media="screen">@import "css/style.css";</style>
     <style type="text/css" media="screen">@import "css/jquery.mobile-1.1.0.min.css";</style>
-    <!-- <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" type="text/css" media="screen" /> -->
-    <!--[if lt IE 9]>
-        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <![endif]-->
+   
     <script type="text/javascript" src="cordova-1.7.0.js"></script>
     <script src="js/libs/jquery-1.7.2.min.js"></script>
-    <!-- <script src="js/libs/jqtouch/jqtouch/jquery-1.4.2.js"></script> -->
     <script src="js/libs/moment.min.js"></script>
-    <!-- <script src="js/libs/jquery.mobile-1.1.0.min.js"></script> -->
     <script src="js/libs/jqtouch/jqtouch/jqtouch.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/libs/jqtouch/jqtouch/jqtouch-jquery.js" type="text/javascript" charset="utf-8"></script>
-  <script src="js/libs/jqtouch/extensions/jqt.activityIndicator.js" type="text/javascript" charset="utf-8"></script>
-    <script src="js/libs/jqtouch/extensions/jqt.bars/iscroll.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/libs/jqtouch/extensions/jqt.bars/iscroll-min.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/libs/jqtouch/extensions/jqt.bars/jqt.bars.js" type="text/javascript" charset="utf-8"></script>
-    <!-- <script src="js/libs/jqtouch/extensions/jqt.autotitles.js" type="text/javascript" charset="utf-8"></script> -->
-    <!-- <script src="js/libs/jqtouch/extensions/jqt.autotitles.js" type="text/javascript" charset="utf-8"></script> -->
     <script src="js/libs/ember-0.9.8.1.js"></script>
-    <script type="text/javascript" src="js/libs/lawnchair-0.6.1.min.js"></script>
-    <!-- <script type="text/javascript" scr = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"> -->
-    
+
+    <script>
+    JSON.originalParse = JSON.parse;
+
+JSON.parse = function(text){
+	if (text) {
+		return JSON.originalParse(text);
+	} else {
+		// no longer crashing on null value but just returning null
+		return null;
+	}
+}
 </script>
-
-<script type="text/javascript" charset="utf-8">
-  var jQT = $.jQTouch({
-  touchSelector:[ '.swipe', '.swipeToDelete'],
-  useFastTouch:true
-  });
-  var showLoader = function(){
-
-  $('.ui-loader').css('display','block');
-  }
-  var hideLoader = function(){
-  $('.ui-loader').css('display','none');
-  }
-  $(function(){
-$("#jqt").ajaxStart(function() {
-  $('.ui-loader').css('display','block');
-    console.log("ajaxStart");
-  }).ajaxSuccess(function() {
-    console.log("ajaxSuccess");
-  $('.ui-loader').css('display','none');
-  }).ajaxError(function() {
-$('.ui-loader').css('display','none');
-    console.log("ajaxError");
-  });
-
- });
-</script>
+    <script type="text/javascript" src="js/libs/lawnchair-0.6.1.js"></script>
 </head>
 <body>
   <div class="ui-loader ui-corner-all ui-body-a ui-loader-default">
@@ -100,7 +69,7 @@ $('.ui-loader').css('display','none');
         <h1>Green Reader</h1>
         <a href="#addsubscription" class="slideup add"> + </a>
       </div>
-      <div class="s-scrollwrapper" vScrollbar="false">
+      <div class="s-scrollwrapper">
         <div>
           <script type="text/x-handlebars">    
           {{#unless RSSReader.subscriptionController.content.length}}
@@ -109,7 +78,7 @@ $('.ui-loader').css('display','none');
           </div>
           {{/unless}}
             {{#collection RSSReader.SubscriptionView}}
-            <a href="#list-view" class="swipeToDelete" {{action "getstore" on="click"}}>
+            <a href="#list-view" class="swipeToDelete slide" {{action "getstore" on="click"}}>
               {{{content.title}}}
             </a>
             <small class="counter color-red hide" {{action "delete" on="click"}}>Delete</small>
@@ -119,12 +88,12 @@ $('.ui-loader').css('display','none');
         </div>
       </div>
 
-      <script type="text/x-handlebars" data-template-name="listview" id="listview">
+      <script type="text/x-handlebars" data-template-name="listview">
 
         <div class="toolbar">
-          <a href="#" class="back">Back</a>
+          <a href="#main-view" class="back">Back</a>
           <h1>{{{RSSReader.subscriptionController.currentSubscription.title}}}</h1>
-          <a class="button">mark all as Read </a>
+          <a class="button" {{action "markAllRead" target="RSSReader.itemController"  on="click"}}>mark Read </a>
           <!-- <a {{action "refresh" on="click"}} class="button">Refresh</a> -->
         </div>
         <div class="s-scrollwrapper pullable">
@@ -148,12 +117,12 @@ $('.ui-loader').css('display','none');
       <script type="text/x-handlebars" data-template-name="current">
         {{#view RSSReader.EntryItemView}}
         <div class="toolbar">
-          <a href="#" class="back">Back</a>
+          <a href="#list-view" class="back">Back</a>
           <h1>{{{content.title}}}</h1>
         </div>
         {{/view}}
         <div class="s-scrollwrapper swipe">
-          <div class="">
+          <div>
             {{#if RSSReader.itemNavController.currentItem}}
             {{#view RSSReader.EntryItemView}}
             <h1>{{content.title}}</h1>
@@ -168,10 +137,11 @@ $('.ui-loader').css('display','none');
     </div>
     <div id="addsubscription">
       <div  class="toolbar">
+        <a href="#main-view" class="back">back</a>
         <h1>Add Subscription</h1>
       </div>
-      <div class="scroll">
-        <div id="some_id" class="some_class">
+      <div class="s-scrollwrapper" vScrollbar="false">
+        <div>
         <script type="text/x-handlebars">
           <h1>Input Keywords for Search or Feed Link(including "http")</h1>
           <form id="search-news" method="get">
@@ -211,18 +181,14 @@ $('.ui-loader').css('display','none');
         <h1>About</h1>
       </div>
       <div class="scroll">
-        <h1>Sync Settings</h1>
-        <ul class="rounded">
-          <li>Sync All Subscription Now</li>
-        </ul>
-        <ul class="rounded">
-          <li><a href="#" onclick="javascript:localStorage.clear();window.location.reload();">Clear All Local Storage</a></li>
+        <ul>
+          <li><a href="jqtouch.html">jQTouch</a></li>
         </ul>
       </div>
     </div>
 
     <!-- <script src="js/dev-helper.js"></script> -->
-    <script src="js/plugins.js"></script>
+    <!-- <script src="js/plugins.js"></script> -->
     <script src="js/init.js"></script>
     <!-- <script src="js/jqm.js"></script> -->
     <script src="js/app.js"></script>

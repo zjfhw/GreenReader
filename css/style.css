@@ -98,7 +98,7 @@ a:hover { color: #036; }
   padding-right: 5px;
 }
 #jqt ul li.arrow a.delete{
-  padding-right: 85px;
+  padding-right: 100px;
   white-space: nowrap;
 }
 #jqt ul li.arrow small.counter.color-red{

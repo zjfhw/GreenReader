@@ -1,6 +1,26 @@
 
+var showLoader = function(){
+
+  $('.ui-loader').css('display','block');
+}
+var hideLoader = function(){
+  $('.ui-loader').css('display','none');
+}
+$(function(){
+  $("#jqt").ajaxStart(function() {
+    $('.ui-loader').css('display','block');
+    console.log("ajaxStart");
+  }).ajaxSuccess(function() {
+    console.log("ajaxSuccess");
+    $('.ui-loader').css('display','none');
+  }).ajaxError(function() {
+    $('.ui-loader').css('display','none');
+    console.log("ajaxError");
+  });
+
+});
 (function($){
-    $.fn.iscroll = function(options){
+  $.fn.iscroll = function(options){
 		if(this.data('iScrollReady') == null){
 			var that = this;
       var options =  $.extend({}, options);
@@ -8,8 +28,8 @@
       console.log(options)
       if(that.data('iscroll') && !options)
         arguments.callee.object  =that.data('iscroll')
-        else
-			arguments.callee.object  = new iScroll(this.get(0), options);
+      else
+			  arguments.callee.object  = new iScroll(this.get(0), options);
 			// NOTE: for some reason in a complex page the plugin does not register
 			// the size of the element. This will fix that in the meantime.
 			setTimeout(function(scroller){
