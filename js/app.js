@@ -3,6 +3,19 @@ var RSSReader, currentNavJson, jQT, listNavJson, mainNavJson, pullDownAction, st
 
 jQT = $.jQTouch({
   touchSelector: ['.swipe', '.swipeToDelete', 'a'],
+  themeSelectionSelector: '#jqt #themes ul',
+  themeIncluded: [
+    {
+      title: 'Default',
+      href: 'css/themes/artspot/theme.css'
+    }, {
+      title: 'jQTouch',
+      href: 'css/themes/jqt/theme.css'
+    }, {
+      title: 'Apple',
+      href: 'css/themes/apple/theme.css'
+    }
+  ],
   preloadImages: ['css/png/glyphicons_020_home.png', 'css/png/glyphicons_195_circle_info.png', 'css/png/glyphicons_019_cogwheel.png', 'css/png/glyphicons_051_eye_open.png', 'css/png/glyphicons_071_book.png', 'css/png/glyphicons_049_star.png', 'css/png/glyphicons_222_share.png']
 });
 
@@ -191,13 +204,16 @@ $(function() {
     return RSSReader.FindFeed($(this).serialize());
   });
   $('.swipe').swipe(function(evt, info) {
+    var $scroll;
     console.log('swipe', info.direction);
     if (info.direction === 'right') {
       RSSReader.itemNavController.prev();
     } else if (info.direction === 'left') {
       RSSReader.itemNavController.next();
     }
-    return $(this).iscroll().scrollTo(0, 0);
+    $scroll = $(this).iscroll();
+    $scroll.refresh();
+    return $scroll.scrollTo(0, 0);
   });
   $('.swipeToDelete').swipe(function(evt, info) {
     var $this;

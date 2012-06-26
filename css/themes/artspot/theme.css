@@ -1,15 +1,18 @@
 /** CHANGE COLORS HERE **/
 
-body, .toolbar, #jqt ul, #jqt ul.individual li,#jqt ul li a.active,#jqt .info,#jqt #plastic,#tabbar, .s-scrollpane {
+body, .toolbar, #jqt ul, #jqt ul.individual li,#jqt ul li a.active,#jqt .info,#jqt #plastic, .s-scrollpane {
     background-color: #519d00; /* main background color */
 }
-#jqt h1, #jqt h2, #jqt ul li a,#jqt .whiteButton, #jqt .button.active, #jqt .cancel.active, #jqt .add.active, #jqt .back.active,#jqt ul li small,#tabbar .badge,#jqt .info,#jqt .info a  {
+#tabbar {
+    background-color:rgba(255, 255, 255, .10);
+}
+#jqt h1, #jqt h2, #jqt ul li a,#jqt .whiteButton, #jqt .button.active, #jqt .cancel.active, #jqt .add.active, #jqt .back.active,#jqt ul li small,#jqt .info,#jqt .info a  {
     color: #2e6c00; /* main text color */
 }
 
 /** END **/
 
-body, .toolbar, #jqt ul, #jqt ul.individual li, #jqt ul li a.active,#tabbar,.s-scrollwrapper {
+body, .toolbar, #jqt ul, #jqt ul.individual li, #jqt ul li a.active,.s-scrollwrapper {
     background-image: url(img/bg_noise.png);
 }
 #jqt > * {
@@ -590,3 +593,5 @@ input[type='submit'] {
     font-weight: inherit;
     padding: 10px;
 }
+
+

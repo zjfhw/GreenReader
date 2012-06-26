@@ -10,6 +10,18 @@ jQT = $.jQTouch
     '.swipeToDelete'
     'a'
   ]
+  themeSelectionSelector: '#jqt #themes ul'
+  themeIncluded: [
+    {title: 'Default', href:'css/themes/artspot/theme.css'}
+    {
+      title: 'jQTouch'
+      href: 'css/themes/jqt/theme.css'
+    }
+    {
+      title: 'Apple'
+      href: 'css/themes/apple/theme.css'
+    }
+  ]
   # useFastTouch:true
   preloadImages:[
     'css/png/glyphicons_020_home.png'
@@ -220,6 +232,7 @@ RSSReader.getSubscription = ->
 ## on Document Ready
 # RSSReader.pageinit = ->
 $(->
+  
   $('#search-news').live 'submit', ->
     console.log 'search news', $(this).serialize()
     RSSReader.FindFeed $(this).serialize()
@@ -230,7 +243,11 @@ $(->
       RSSReader.itemNavController.prev()
     else if info.direction is 'left'
       RSSReader.itemNavController.next()
-    $(this).iscroll().scrollTo(0,0)
+    
+    $scroll = $(this).iscroll()
+    $scroll.refresh()
+    $scroll.scrollTo(0,0)
+    
 
   $('.swipeToDelete').swipe (evt, info)->
     console.log 'swipe', info.direction
