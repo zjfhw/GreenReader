@@ -5,11 +5,11 @@
 # local storage
 # new lawnchair ->
 jQT = $.jQTouch
-  touchSelector:[
-    '.swipe'
-    '.swipeToDelete'
-    'a'
-  ]
+  # touchSelector:[
+  #   '.swipe'
+  #   '.swipeToDelete'
+  #   'a'
+  # ]
   themeSelectionSelector: '#jqt #themes ul'
   themeIncluded: [
     {title: 'Default', href:'css/themes/artspot/theme.css'}
@@ -22,7 +22,7 @@ jQT = $.jQTouch
       href: 'css/themes/apple/theme.css'
     }
   ]
-  # useFastTouch:true
+  # useFastTouch:false
   preloadImages:[
     'css/png/glyphicons_020_home.png'
     'css/png/glyphicons_195_circle_info.png'
@@ -141,7 +141,7 @@ currentNavJson=[
 #############################
 RSSReader.FindFeed = (query)->
   showLoader()
-  if query.substring(0,6) is 'q=http'
+  if query and query.substring(0,6) is 'q=http'
     RSSReader.GetItemsFromStore(query.substr(2))
     hideLoader()
     jQT.goTo 'main-view','flip'
@@ -224,45 +224,55 @@ RSSReader.clearStore = (key,callback)->
     callback()
     
 RSSReader.getSubscription = ->
-  items = subscriptionData.all (arr)->
+  
+  subscriptionData.all (arr)->
     arr.forEach (entry)->
       item = RSSReader.Subscription.create entry
       RSSReader.subscriptionController.addItem item
-    console.log 'subscription load form local:', arr.length
+    console.log 'subscription load form local:', arr.length,arr
 ## on Document Ready
 # RSSReader.pageinit = ->
-$(->
-  
-  $('#search-news').live 'submit', ->
-    console.log 'search news', $(this).serialize()
-    RSSReader.FindFeed $(this).serialize()
-    # RSSReader.FindFeed
-  $('.swipe').swipe (evt, info)->
-    console.log 'swipe', info.direction
-    if info.direction is 'right'
-      RSSReader.itemNavController.prev()
-    else if info.direction is 'left'
-      RSSReader.itemNavController.next()
-    
-    $scroll = $(this).iscroll()
-    $scroll.refresh()
-    $scroll.scrollTo(0,0)
-    
+  #
 
-  $('.swipeToDelete').swipe (evt, info)->
-    console.log 'swipe', info.direction
-    $this = $(this)
-    if info.direction is 'right'
-      console.log $this.next()
-      $this.addClass 'delete'
-      $this.next().removeClass 'hide'
-    else if info.direction is 'left'
-      $this.removeClass 'delete'
-      $this.next().addClass 'hide'
+deviceReady = ->
+  if window.device
+    console.log 'phonegap ready'
+  else
+    $('#search-news').live 'submit', ->
+      console.log 'search news', $(this).serialize()
+      RSSReader.FindFeed $(this).serialize()
+      # RSSReader.FindFeed
+    $('.swipe').swipe (evt, info)->
+      console.log 'swipe', info.direction
+      if info.direction is 'right'
+        RSSReader.itemNavController.prev()
+      else if info.direction is 'left'
+        RSSReader.itemNavController.next()
+      
+      $scroll = $(this).iscroll()
+      $scroll.refresh()
+      $scroll.scrollTo(0,0)
+
+    $('.swipeToDelete').swipe (evt, data)->
+      details =  if !data then '' else data
+      console.log 'swipe', details.direction
+      $this = $(this)
+      if details.direction is 'right'
+        console.log $this.next()
+        $this.addClass 'delete'
+        $this.next().removeClass 'hide'
+      else if details.direction is 'left'
+        $this.removeClass 'delete'
+        $this.next().addClass 'hide'
   # jQT.initbars()
   # console.log 'pageinit'
   v = RSSReader.get 'listView'
-
+  # m = RSSReader.get 'mainView'
+  # if !m
+  #   console.log 'main not created'
+  #   m = RSSReader.MainView.create()
+  #   RSSReader.set 'mainView',m
+  #   m.appendTo $('#jqt')
   if !v
     console.log 'list not created'
     v = RSSReader.ListView.create()
@@ -293,7 +303,12 @@ $(->
       RSSReader.navbarController.set 'currentPage',currentNavJson
       # Em.run.next ->
         # jQT.initTabbar()
-)
+
+
+if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) 
+  document.addEventListener("deviceready", deviceReady, false)
+else
+  $(deviceReady)
 
 pullDownAction = (scroll)->
   RSSReader.itemController.refreshList(->

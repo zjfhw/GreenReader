@@ -18,15 +18,19 @@
     <style type="text/css" media="screen">@import "css/jquery.mobile-1.1.0.min.css";</style>
    
     <script type="text/javascript" src="cordova-1.7.0.js"></script>
-    <script src="js/libs/jquery-1.7.2.min.js"></script>
+    
+    <!-- <script src="js/libs/jqtouch/jqtouch/lib/zepto.min.js" type="text/javascript" charset="utf-8"></script> -->
     <script src="js/libs/moment.min.js"></script>
     <script src="js/libs/jqtouch/jqtouch/jqtouch.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/libs/jquery-1.7.2.min.js"></script>
     <script src="js/libs/jqtouch/jqtouch/jqtouch-jquery.js" type="text/javascript" charset="utf-8"></script>
 
     <script src="js/libs/jqtouch/extensions/jqt.bars/iscroll-min.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/libs/jqtouch/extensions/jqt.bars/jqt.bars.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/libs/jqtouch/extensions/jqt.themeswitcher.js" type="application/x-javascript" charset="utf-8"></script>
     <script src="js/libs/ember-0.9.8.1.js"></script>
+    <script src="js/libs/ember-touch.min.js"></script>
+
     
     <script>
       JSON.originalParse = JSON.parse;
@@ -40,9 +44,9 @@
 	    }
       }
 </script>
-    <script type="text/javascript" src="js/libs/lawnchair-0.6.1.js"></script>
+    <script type="text/javascript" src="js/libs/lawnchair-0.6.1.min.js"></script>
 </head>
-<body>
+<body  ontouchmove="touchMove(event);">
   <div class="ui-loader ui-corner-all ui-body-a ui-loader-default">
 <span class="ui-icon ui-icon-loading"></span><h1>loading</h1></div>
   <!-- <div id="tabbar"> -->
@@ -68,7 +72,7 @@
     <div id="main-view">
       <div class="toolbar">
         <h1>Green Reader</h1>
-        <a href="#addsubscription" class="slideup add"> + </a>
+        <a href="#addsubscription" class="flip add"> + </a>
       </div>
       <div class="s-scrollwrapper">
         <div>
@@ -79,7 +83,8 @@
           </div>
           {{/unless}}
             {{#collection RSSReader.SubscriptionView}}
-            <a href="#list-view" class="swipeToDelete slide" {{action "getstore" on="click"}}>
+            <a href="#list-view" class="swipeToDelete" {{action "getstore" on="click"}}>
+            <!-- <a href="#list-view" class="swipeToDelete slide"> -->
               {{{content.title}}}
             </a>
             <small class="counter color-red hide" {{action "delete" on="click"}}>Delete</small>
@@ -116,12 +121,12 @@
       </script>
 
       <script type="text/x-handlebars" data-template-name="current">
-        {{#view RSSReader.EntryItemView}}
+        <!-- {{#view RSSReader.EntryItemView}} -->
         <div class="toolbar">
           <a href="#list-view" class="back">Back</a>
-          <h1>{{{content.title}}}</h1>
+          <!-- <h1>{{{content.title}}}</h1> -->
         </div>
-        {{/view}}
+        <!-- {{/view}} -->
         <div class="s-scrollwrapper swipe">
           <div>
             {{#if RSSReader.itemNavController.currentItem}}
@@ -166,6 +171,7 @@
       <div class="toolbar">
         <h1>Settings</h1>
       </div>
+      
       <div class="scroll">
         <div id="themes">
                 

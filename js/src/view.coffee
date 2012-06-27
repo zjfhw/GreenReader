@@ -11,22 +11,84 @@ RSSReader.CurrentView = Em.View.extend
   templateName:'current'
   elementId: 'current-view'
 
+# RSSReader.MainView = Em.View.extend
+#   templateName:'mainview'
+#   elementId: 'main-view
+
+
+# RSSReader.SubscriptionItemView = Em.View.extend
+#     swipeOptions:
+#         direction: Em.OneGestureDirection.Left | Em.OneGestureDirection.Right
+#         cancelPeriod: 100
+#         swipeThreshold: 10
+#     click:->
+#       console.log 'click',this
+#     swipeEnd:(recognizer)->
+#       console.log('recognizer',recognizer.swipeDirection)
+      
+#       if Em.OneGestureDirection.Left is recognizer.swipeDirection
+#         console.log $this.next()
+#         $this.addClass 'delete'
+#         $this.next().removeClass 'hide'
+#       else if Em.OneGestureDirection.Right is recognizer.swipeDirection
+#         $this.removeClass 'delete'
+#         $this.next().addClass 'hide'
+#     tagName:'li'
+#     classNames: ['arrow']
+    # elementId:(->
+    #   @get('content').url
+    # ).property 'content'
+   
+    # getstore:->
+    #   console.log this
+    #   RSSReader.GetItemsFromStore(@get 'elementId')
+    #   RSSReader.subscriptionController.set "currentSubscription",@get 'content'
+    #   console.log 'click', @get 'elementId'
+    #   jQT.goTo '#list-view', 'cube'
+    # delete:->
+    #   #console.log 'delete',@get 'elementId'
+    #   RSSReader.subscriptionController.removeItem @get 'elementId
+
+
 RSSReader.SubscriptionView = Em.CollectionView.extend
   contentBinding: 'RSSReader.subscriptionController.content'
   tagName:'ul'
   classNames:['plastic','view']
   itemViewClass:Em.View.extend
+    swipeOptions:
+        direction: Em.OneGestureDirection.Left | Em.OneGestureDirection.Right
+        cancelPeriod: 100
+        swipeThreshold: 10
+    
+    swipeEnd:(recognizer)->
+      console.log('recognizer',recognizer.swipeDirection)
+      $this = this.$()
+      console.log this.$().toString()
+      console.log this.$().attr("class")
+      if Em.OneGestureDirection.Right is recognizer.swipeDirection
+        console.log 'swipe left'
+        $this.find('a').addClass 'delete'
+        $this.find('small').removeClass 'hide'
+      else if Em.OneGestureDirection.Left is recognizer.swipeDirection
+        console.log 'swipt right'
+        $this.find('a').removeClass 'delete'
+        $this.find('small').addClass 'hide'
     tagName:'li'
     classNames: ['arrow']
-    elementId:(->
-      @get('content').url
-    ).property 'content'
+    # elementId:(->
+      # @get('content').url
+    # ).property 'content'
+    # click:->
+    #   console.log 'click' ,this,this.$()
+    #   RSSReader.GetItemsFromStore(@get('content').url)
+    #   RSSReader.subscriptionController.set "currentSubscription",@get 'content'
+    #   console.log 'click',@get('content').url
     getstore:->
-      #console.log 'click',@get 'elementId'
-      RSSReader.GetItemsFromStore(@get 'elementId')
+      # console.log @get 'current'
+      RSSReader.GetItemsFromStore(@get('content').url)
       RSSReader.subscriptionController.set "currentSubscription",@get 'content'
-      console.log 'click', @get 'elementId'
-      jQT.goTo '#list-view', 'slideleft'
+      console.log 'click',@get('content').url
+      # jQT.goTo '#list-view','slide'
     delete:->
       #console.log 'delete',@get 'elementId'
       RSSReader.subscriptionController.removeItem @get 'elementId'
@@ -34,7 +96,8 @@ RSSReader.SubscriptionView = Em.CollectionView.extend
       template: Ember.Handlebars.compile("Your subscription is empty")
     })
   contentLengthDidChange:(->
-    #console.log('subscription changed',this)
+    console.log('subscription changed',@get 'content')
+    @rerender()
     Em.run.next( ->
       jQT.setPageHeight()
     )
@@ -52,6 +115,7 @@ RSSReader.QueryResultView = Em.CollectionView.extend
   itemViewClass:Em.View.extend
     tagName:'li'
     click:->
+      console.log this.$()
       RSSReader.subscriptionController.addItem @get 'content'
       jQT.goTo '#main-view','flipleft'
   contentLengthDidChange:(->
@@ -78,12 +142,15 @@ RSSReader.FooterNavBarView = Em.CollectionView.extend
       # @get('content').set 'currentList',@get('content').get 'action'
       #console.log @get('content').get('currentList') ,@get('content')
       $content = @get 'content'
+      if @get('content').get('action') is 'inBrowser'
+        window.location= RSSReader.itemNavController.get('currentItem').item_link
+        return
       if RSSReader.itemController[@get('content').get 'action']
         RSSReader.itemController[@get('content').get 'action']()
       else if RSSReader.itemNavController[@get('content').get 'action']
         RSSReader.itemNavController[@get('content').get 'action']()
         #console.log 'in itemNavController'
-  
+      
   # contentWithIndices:(->
   #   content.map (i,idx)->
   #     {item:i,index:idx}
@@ -106,7 +173,7 @@ RSSReader.SummaryListView = Em.CollectionView.extend
     ).property 'RSSReader.itemController.@each.starred'
 
     click:(evt)->
-      #console.log 'select', @get 'content'
+      console.log 'select',this, this.$()
       content = @get 'content'
       RSSReader.itemNavController.select content
       jQT.goTo '#current-view','slideleft'
@@ -120,6 +187,7 @@ RSSReader.SummaryListView = Em.CollectionView.extend
       # TODO reset iscroll
       # jQT.refresh_iScroll
     ).observes 'content'
+    
  # Observe the attached content array's length and refresh the listview on the next RunLoop tick
   contentLengthDidChange:(->
     #console.log('listview changed',this)
@@ -190,12 +258,24 @@ RSSReader.SummaryListView = Em.CollectionView.extend
 RSSReader.EntryItemView = Em.View.extend
   contentBinding: 'RSSReader.itemNavController.currentItem'
   viewDidChange:(->
-    #console.log 'view change'
+    console.log 'view change'
     jQT.setPageHeight()
     # TODO reset iscroll
     # jQT.refresh_iScroll
     ).observes 'content'
-
+  swipeOptions:
+        direction: Em.OneGestureDirection.Left | Em.OneGestureDirection.Right
+        cancelPeriod: 100
+        swipeThreshold: 10
+    
+  swipeEnd:(recognizer)->
+      if Em.OneGestureDirection.Right is recognizer.swipeDirection
+        RSSReader.itemNavController.prev()
+      else if Em.OneGestureDirection.Left is recognizer.swipeDirection
+        RSSReader.itemNavController.next()
+      $scroll = $('.swipe').iscroll()
+      $scroll.refresh()
+      $scroll.scrollTo(0,0)
 # RSSReader.EntryFooterView = RSSReader.FooterView.extend
 #   'data-position':'fixed'
 #   contentBinding: 'RSSReader.itemNavController.currentItem'

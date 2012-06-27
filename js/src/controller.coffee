@@ -199,23 +199,24 @@ RSSReader.queryResultController = Em.ArrayController.create
 RSSReader.subscriptionController = Em.ArrayController.create
   content: []
   currentSubscription:null
-  addUrl:null
-  query:''
+  # addUrl:null
+  # query:''
   # add item to controller if it's not exists already
   addItem:(item) ->
    
-    itemToAdd=
-      url:@get 'addUrl'
-      title:@get 'query'
-    if item
-      itemToAdd.url=item.url
-      itemToAdd.title=item.title
+    # itemToAdd=
+      # url:@get 'addUrl'
+      # title:@get 'query'
+    # if item
+    itemToSave={}
+    itemToSave.url=item.url
+    itemToSave.title=item.title
     # RSSReader.FindFeed @get 'query'
     exists = @filterProperty('url',item.url).length
     if exists is 0
-      itemToAdd.key = itemToAdd.url
-      subscriptionData.save itemToAdd
-      @pushObject RSSReader.Subscription.create itemToAdd
+      itemToSave.key = item.url
+      subscriptionData.save itemToSave
+      @insertAt 0, RSSReader.Subscription.create itemToSave
       #console.log @get 'content'
       return true
     else
@@ -226,13 +227,14 @@ RSSReader.subscriptionController = Em.ArrayController.create
     if item[0]
       #console.log item,@get('content').length,@get('content').indexOf item[0],@get 'content'
       @get('content').removeAt @indexOf(item[0])
-    Lawnchair
-      name:key
-      record:'entry'
-      ,->
-        this.nuke()
     subscriptionData.remove key,->
-      this.all('#console.log(subscript.length)')
+      this.all('console.log(subscript.length)')
+    # Lawnchair
+    #   name:key
+    #   record:'entry'
+    #   ,->
+    #     this.nuke()
+    
      
     #console.log @get('content').length
      
