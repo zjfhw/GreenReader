@@ -22,7 +22,7 @@ jQT = $.jQTouch
       href: 'css/themes/apple/theme.css'
     }
   ]
-  # useFastTouch:false
+  useFastTouch:false
   preloadImages:[
     'css/png/glyphicons_020_home.png'
     'css/png/glyphicons_195_circle_info.png'
@@ -50,7 +50,7 @@ RSSReader = Em.Application.create
     RSSReader.getSubscription()
     RSSReader.navbarController.set 'currentPage',mainNavJson
     # RSSReader.pageinit()
-    jQT.initbars()
+    
 
 
 # init Data
@@ -286,6 +286,7 @@ deviceReady = ->
     RSSReader.set('currentView',c)
     c.appendTo $('#jqt')
 
+  # Tabbar init for each page
   $('#list-view').live 'pageAnimationEnd', (event,info)->
     if info.direction is 'in'
       RSSReader.navbarController.set 'currentPage',listNavJson
@@ -305,7 +306,8 @@ deviceReady = ->
         # jQT.initTabbar()
 
 
-if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) 
+if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/))
+  console.log 'prepair device'
   document.addEventListener("deviceready", deviceReady, false)
 else
   $(deviceReady)

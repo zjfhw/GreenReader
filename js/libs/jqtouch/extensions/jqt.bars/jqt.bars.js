@@ -249,7 +249,7 @@ Tabbar Dynamically Loaded Pages
       jQT.barsReady = false;
 
       jQT.barsSettings = {
-        autoLoad_iScroll: true,
+        autoLoad_iScroll: false,
         debug: false,
         iscroll_lite: false,
         phonegap: false,

@@ -15,6 +15,7 @@ jQT = $.jQTouch({
       href: 'css/themes/apple/theme.css'
     }
   ],
+  useFastTouch: false,
   preloadImages: ['css/png/glyphicons_020_home.png', 'css/png/glyphicons_195_circle_info.png', 'css/png/glyphicons_019_cogwheel.png', 'css/png/glyphicons_051_eye_open.png', 'css/png/glyphicons_071_book.png', 'css/png/glyphicons_049_star.png', 'css/png/glyphicons_222_share.png']
 });
 
@@ -32,8 +33,7 @@ RSSReader = Em.Application.create({
   ready: function() {
     this._super();
     RSSReader.getSubscription();
-    RSSReader.navbarController.set('currentPage', mainNavJson);
-    return jQT.initbars();
+    return RSSReader.navbarController.set('currentPage', mainNavJson);
   }
 });
 
@@ -263,6 +263,7 @@ deviceReady = function() {
 };
 
 if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
+  console.log('prepair device');
   document.addEventListener("deviceready", deviceReady, false);
 } else {
   $(deviceReady);
@@ -525,10 +526,18 @@ RSSReader.subscriptionController = Em.ArrayController.create({
   },
   removeItem: function(key) {
     var item;
+    console.log('deleting', key);
     item = this.filterProperty('url', key);
     if (item[0]) {
+      console.log(item, this.get('content').length, this.get('content').indexOf(item[0], this.get('content')));
       this.get('content').removeAt(this.indexOf(item[0]));
     }
+    Lawnchair({
+      name: key,
+      record: 'entry'
+    }, function() {
+      return this.nuke();
+    });
     return subscriptionData.remove(key, function() {
       return this.all('console.log(subscript.length)');
     });
@@ -587,7 +596,12 @@ RSSReader.Subscription = Em.Object.extend({
 
 RSSReader.ListView = Em.View.extend({
   templateName: 'listview',
-  elementId: 'list-view'
+  elementId: 'list-view',
+  didInsertElement: function() {
+    return Em.run.next(function() {
+      return jQT.initbars();
+    });
+  }
 });
 
 RSSReader.CurrentView = Em.View.extend({
@@ -607,10 +621,7 @@ RSSReader.SubscriptionView = Em.CollectionView.extend({
     },
     swipeEnd: function(recognizer) {
       var $this;
-      console.log('recognizer', recognizer.swipeDirection);
       $this = this.$();
-      console.log(this.$().toString());
-      console.log(this.$().attr("class"));
       if (Em.OneGestureDirection.Right === recognizer.swipeDirection) {
         console.log('swipe left');
         $this.find('a').addClass('delete');
@@ -624,12 +635,14 @@ RSSReader.SubscriptionView = Em.CollectionView.extend({
     tagName: 'li',
     classNames: ['arrow'],
     getstore: function() {
+      console.log('getstroe', this.get('content').url);
       RSSReader.GetItemsFromStore(this.get('content').url);
       RSSReader.subscriptionController.set("currentSubscription", this.get('content'));
-      return console.log('click', this.get('content').url);
+      console.log('click', this.get('content').url);
+      return jQT.goTo('#list-view');
     },
     "delete": function() {
-      return RSSReader.subscriptionController.removeItem(this.get('elementId'));
+      return RSSReader.subscriptionController.removeItem(this.get('content').url);
     }
   }),
   emptyView: Ember.View.extend({
@@ -637,7 +650,6 @@ RSSReader.SubscriptionView = Em.CollectionView.extend({
   }),
   contentLengthDidChange: (function() {
     console.log('subscription changed', this.get('content'));
-    this.rerender();
     return Em.run.next(function() {
       return jQT.setPageHeight();
     });
@@ -651,7 +663,6 @@ RSSReader.QueryResultView = Em.CollectionView.extend({
   itemViewClass: Em.View.extend({
     tagName: 'li',
     click: function() {
-      console.log(this.$());
       RSSReader.subscriptionController.addItem(this.get('content'));
       return jQT.goTo('#main-view', 'flipleft');
     }
@@ -704,7 +715,6 @@ RSSReader.SummaryListView = Em.CollectionView.extend({
     }).property('RSSReader.itemController.@each.starred'),
     click: function(evt) {
       var content;
-      console.log('select', this, this.$());
       content = this.get('content');
       RSSReader.itemNavController.select(content);
       return jQT.goTo('#current-view', 'slideleft');
@@ -734,8 +744,10 @@ RSSReader.SummaryListView = Em.CollectionView.extend({
 RSSReader.EntryItemView = Em.View.extend({
   contentBinding: 'RSSReader.itemNavController.currentItem',
   viewDidChange: (function() {
-    console.log('view change');
-    return jQT.setPageHeight();
+    console.log('view change', this.get('content'));
+    return Em.run.once(function() {
+      return jQT.setPageHeight();
+    });
   }).observes('content'),
   swipeOptions: {
     direction: Em.OneGestureDirection.Left | Em.OneGestureDirection.Right,

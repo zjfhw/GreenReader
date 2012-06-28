@@ -222,18 +222,19 @@ RSSReader.subscriptionController = Em.ArrayController.create
     else
       false
   removeItem:(key) ->
-    #console.log 'deleting',key
+    console.log 'deleting',key
     item = @filterProperty 'url', key
     if item[0]
-      #console.log item,@get('content').length,@get('content').indexOf item[0],@get 'content'
+      console.log item,@get('content').length,@get('content').indexOf item[0],@get 'content'
       @get('content').removeAt @indexOf(item[0])
+    Lawnchair
+      name:key
+      record:'entry'
+      ,->
+        this.nuke()
     subscriptionData.remove key,->
       this.all('console.log(subscript.length)')
-    # Lawnchair
-    #   name:key
-    #   record:'entry'
-    #   ,->
-    #     this.nuke()
+    
     
      
     #console.log @get('content').length
