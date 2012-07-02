@@ -19,7 +19,7 @@
    
     <script type="text/javascript" src="cordova-1.7.0.js"></script>
     
-    <!-- <script src="js/libs/jqtouch/jqtouch/lib/zepto.min.js" type="text/javascript" charset="utf-8"></script> -->
+    <script src="js/libs/jqtouch/jqtouch/lib/zepto.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/libs/moment.min.js"></script>
     
 <script src="js/libs/jquery-1.7.2.min.js"></script>
@@ -43,6 +43,9 @@
 		  // no longer crashing on null value but just returning null
 		  return null;
 	    }
+      }
+      touchMove=function(event){
+      event.preventDefault();
       }
 </script>
     <script type="text/javascript" src="js/libs/lawnchair-0.6.1.js"></script>
@@ -130,7 +133,12 @@
             {{#if RSSReader.itemNavController.currentItem}}
             {{#view RSSReader.EntryItemView}}
             <h1>{{content.title}}</h1>
-            <span class="author">{{content.pub_author}}</span>
+            <hr/>
+            <div class="author">
+              {{#if content.pub_author}}
+              by {{content.pub_author}}
+              {{/if}}
+            on {{dateFromNow}}</div>
             <hr/>
            
                 {{{content.content}}}
@@ -153,7 +161,7 @@
           <h1>Input Keywords for Search or Feed Link(including "http")</h1>
           <form id="search-news" method="get">
             <div class="ui-input-search ui-shadow-inset ui-btn-corner-all ui-btn-shadow ui-icon-searchfield ui-body-c">
-              <input type="search" name="q" data-type="search" class="ui-input-text ui-body-c"  placeholder="Keywords">
+              <input type="search" name="q" data-type="search" class="ui-input-text ui-body-c"  placeholder="Keywords or Direct URL">
             </div>
           </form>
           {{#collection RSSReader.QueryResultView}}
@@ -162,7 +170,7 @@
           {{/collection}}
         </script>
         <br>
-        <a class="grayButton" href="#">
+        <a class="grayButton flip" href="#main-view">
           Cancel
         </a>
       </div> </div> 
@@ -173,7 +181,8 @@
         <h1>Settings</h1>
       </div>
       
-      <div class="scroll">
+      <div class="s-scrollwrapper">
+        <div>
         <div id="themes">
                 
                     <h1>Themes</h1>
@@ -182,10 +191,13 @@
                 <ul class="rounded">
                 </ul>
             </div>
-<h1>Reset</h1>
+<h1>Clear</h1>
         <ul class="rounded">
-          <li><a href="#" onclick="javascript:localStorage.clear();window.location.reload();">Clear All Local Storage</a></li>
+          <li><a href="#" onclick="RSSReader.clearStore();">Clear All News Storage</a></li>
+          <li><a href="#" onclick="javascript:localStorage.clear();window.location.reload();">Reset</a></li>
+                    
         </ul>
+        </div>
       </div>
     </div>
 

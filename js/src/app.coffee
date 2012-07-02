@@ -1,16 +1,29 @@
+###
+
+Copyright (c) 2012 Jichao Ouyang http://geogeo.github.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
 #####################
 # create app object #
 #####################
 
-# local storage
-# new lawnchair ->
+
+###
+new jQT instance and initialize
+  - init theme selector
+  - preload images
+###
+
 jQT = $.jQTouch
-  # touchSelector:[
-  #   '.swipe'
-  #   '.swipeToDelete'
-  #   'a'
-  # ]
+  # theme switcher
   themeSelectionSelector: '#jqt #themes ul'
+  # only contain 3 themes for now
   themeIncluded: [
     {title: 'Default', href:'css/themes/artspot/theme.css'}
     {
@@ -22,7 +35,9 @@ jQT = $.jQTouch
       href: 'css/themes/apple/theme.css'
     }
   ]
-  useFastTouch:false
+  # fast touch for better experience , for ios and browser
+  # useFastTouch:true
+  # preload images in tabbar
   preloadImages:[
     'css/png/glyphicons_020_home.png'
     'css/png/glyphicons_195_circle_info.png'
@@ -32,28 +47,38 @@ jQT = $.jQTouch
     'css/png/glyphicons_049_star.png'
     'css/png/glyphicons_222_share.png'
   ]
+
+
+###
+lawnchair instance for local storage
+  - store: for news items
+  - subscritionData: for subscription items  
+###
+
+# news items
 store = Lawnchair
   name:'entries'
   record:'entry'
   ,->
-
+# subscription
 subscriptionData=Lawnchair
   name:'subscript'
   record:'entry'
   ,->
-# app
+
+###
+initialize Emberjs Application
+
+###
 RSSReader = Em.Application.create
   ready:->
     @_super()
-    # get content from rss source
-    # RSSReader.GetItemsFromStore('showDefault')
     RSSReader.getSubscription()
     RSSReader.navbarController.set 'currentPage',mainNavJson
-    # RSSReader.pageinit()
-    
 
-
-# init Data
+###
+Initialize fixture for Tabbar
+###
 mainNavJson=[
   {
     url:'#main-view'
@@ -132,20 +157,35 @@ currentNavJson=[
     action:"inBrowser"
    }
 ]  
-    # RSSReader.initPullToRefresh()
 
-
-
-#############################
-# Get Items from rss source #
-#############################
+###
+Find/Get RSS source
+``using Google Feed Api``
+###
 RSSReader.FindFeed = (query)->
+  # lodding indicator
   showLoader()
-  if query and query.substring(0,6) is 'q=http'
-    RSSReader.GetItemsFromStore(query.substr(2))
-    hideLoader()
-    jQT.goTo 'main-view','flip'
+  # guess if it's query or url
+  if query and query.substring(0,6).toLowerCase() is 'q=http'
+    # load source directly
+    # RSSReader.GetItemsFromStore(query.substr(2))
+    $.getJSON 'https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&'+query+'&callback=?',(data)->
+      hideLoader()
+      try
+        item = {}
+        item.url=data.responseData.feed.feedUrl
+        item.title=data.responseData.feed.title
+        if RSSReader.subscriptionController.addItem item
+          item.key = item.url
+          subscriptionData.save item
+          
+        jQT.goTo '#main-view','flipright'
+      catch e
+        alert 'wrong url'
+     
+      
   else
+    # Google Feed Find API
     $.getJSON 'https://ajax.googleapis.com/ajax/services/feed/find?v=1.0&'+query+'&callback=?',(data)->
       console.log 'query' , data,data.responseData.entries
       RSSReader.queryResultController.addItem data.responseData.entries
@@ -166,14 +206,7 @@ RSSReader.GetItemsFromStore = (feed,currentList, callback)->
   if not feed
     alert 'no url'
     hideLoader()
-  # feed = encodeURIComponent feed
-  # Feed parser that supports CORS and returns data as a JSON string
-  # select * from xml where url='http://cn.engadget.com/tag/breaking+news/rss.xml'
-  # feedPipeURL = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'"
-  # feedPipeURL += feed + "'&format=json"
-  
-  console.log 'getting sourc as json','https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&q='+feed+'&callback=?'
-
+  # Google Feed Load Api
   $.getJSON 'https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&q='+feed+'&callback=?',(data)->
     console.log data.responseData
     if not data.responseData or not data.responseData.feed
@@ -182,13 +215,13 @@ RSSReader.GetItemsFromStore = (feed,currentList, callback)->
     items =  data.responseData.feed.entries
 
     feedLink = data.responseData.feed.feedUrl
-
-    # map each entry to dataController
+  
+    # populate each entry to dataController
     items.map (entry) ->
       item={}
       item.item_id = entry.link
       item.pub_name = data.responseData.feed.title
-      item.pub_author = entry.creator
+      item.pub_author = entry.author
       item.title = entry.title
       item.feed_link = feedLink
       item.content = entry.content
@@ -216,13 +249,22 @@ RSSReader.GetItemsFromStore = (feed,currentList, callback)->
     hideLoader()
     if callback
       callback()     
-    
-RSSReader.clearStore = (key,callback)->
-  Lawnchair {name:key},->
-    this.nuke()
-  if callback
-    callback()
-    
+
+
+RSSReader.clearStore = ()->
+ 
+  subscriptionData.all (arr)->
+    arr.forEach (entry)->
+      console.log entry.key
+      Lawnchair
+        name:entry.key
+        record:'entry'
+        ,->
+          this.nuke()
+  RSSReader.dataController.content.clear()
+
+
+# Get subscription from local data    
 RSSReader.getSubscription = ->
   
   subscriptionData.all (arr)->
@@ -230,18 +272,15 @@ RSSReader.getSubscription = ->
       item = RSSReader.Subscription.create entry
       RSSReader.subscriptionController.addItem item
     console.log 'subscription load form local:', arr.length,arr
-## on Document Ready
-# RSSReader.pageinit = ->
-  #
 
+###
+When Document or Device Ready
+###
 deviceReady = ->
   if window.device
     console.log 'phonegap ready'
   else
-    $('#search-news').live 'submit', ->
-      console.log 'search news', $(this).serialize()
-      RSSReader.FindFeed $(this).serialize()
-      # RSSReader.FindFeed
+    # Swipe to navigate
     $('.swipe').swipe (evt, info)->
       console.log 'swipe', info.direction
       if info.direction is 'right'
@@ -253,6 +292,7 @@ deviceReady = ->
       $scroll.refresh()
       $scroll.scrollTo(0,0)
 
+    # Swipe to Delete Subscription
     $('.swipeToDelete').swipe (evt, data)->
       details =  if !data then '' else data
       console.log 'swipe', details.direction
@@ -264,22 +304,21 @@ deviceReady = ->
       else if details.direction is 'left'
         $this.removeClass 'delete'
         $this.next().addClass 'hide'
-  # jQT.initbars()
-  # console.log 'pageinit'
+  # Query Feed submit event
+  $('#search-news').live 'submit', ->
+      console.log 'search news', $(this).serialize()
+      RSSReader.FindFeed $(this).serialize()
+ 
+
+  # Create List and Current View and append them to DOM
   v = RSSReader.get 'listView'
-  # m = RSSReader.get 'mainView'
-  # if !m
-  #   console.log 'main not created'
-  #   m = RSSReader.MainView.create()
-  #   RSSReader.set 'mainView',m
-  #   m.appendTo $('#jqt')
   if !v
     console.log 'list not created'
     v = RSSReader.ListView.create()
     RSSReader.set 'listView',v
     v.appendTo $('#jqt')
-  c = RSSReader.get 'currentView'
 
+  c = RSSReader.get 'currentView'
   if !c
     console.log 'current not created'
     c = RSSReader.CurrentView.create()
@@ -290,32 +329,25 @@ deviceReady = ->
   $('#list-view').live 'pageAnimationEnd', (event,info)->
     if info.direction is 'in'
       RSSReader.navbarController.set 'currentPage',listNavJson
-      # Em.run.next ->
-      #   jQT.initTabbar()
-      # jQT.initTabbar()
   $('#main-view').live 'pageAnimationEnd', (event,info)->
     if info.direction is 'in'
       RSSReader.navbarController.set 'currentPage',mainNavJson
-      # Em.run.next ->
-        # jQT.initTabbar()
-      # jQT.initTabbar()
   $('#current-view').live 'pageAnimationEnd', (event,info)->
     if info.direction is 'in'
       RSSReader.navbarController.set 'currentPage',currentNavJson
-      # Em.run.next ->
-        # jQT.initTabbar()
 
-
+# Guess which device you're using
 if (navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/))
   console.log 'prepair device'
   document.addEventListener("deviceready", deviceReady, false)
 else
   $(deviceReady)
 
+
+# action when pull down trigger
 pullDownAction = (scroll)->
   RSSReader.itemController.refreshList(->
     scroll.refresh()
-    # console.log 'asdf'
   )
 
 # pull down to refresh initialize
@@ -323,11 +355,11 @@ RSSReader.pullinit = ->
   pullDownEl = $('#pullDown')
   pullDownOffset = 51
   $('.pullable').iscroll
-    topOffset:51
+    topOffset:pullDownOffset
     onRefresh:->
       # console.log 'refresh'
       if pullDownEl.hasClass 'loading'
-        # console.log 'remove'
+        console.log 'remove'
         pullDownEl.removeClass()
         pullDownEl.find('pullDownLabel').html('PullDown to Refresh')
     onScrollMove:->
@@ -336,7 +368,7 @@ RSSReader.pullinit = ->
         pullDownEl.addClass 'flip'
         pullDownEl.find('.pullDownLabel').html('Release to Refresh')
         @minScrollY=0
-      else if @y < 5 and !pullDownEl.hasClass 'flip'
+      else if @y < 5 and pullDownEl.hasClass 'flip'
         pullDownEl.removeClass 'flip'
         pullDownEl.find('.pullDownLabel').html('Pull down to refresh')
         @minScrollY= -pullDownOffset
@@ -347,3 +379,4 @@ RSSReader.pullinit = ->
         pullDownEl.find('.pullDownLabel').html 'Loading...'
         pullDownAction(this) 
 
+  

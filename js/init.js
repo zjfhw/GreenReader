@@ -1,6 +1,5 @@
 
 var showLoader = function(){
-
     $('.ui-loader').css('display','block');
 }
 var hideLoader = function(){
@@ -31,8 +30,9 @@ $(function(){
             }
             else{
                 if (that.data('iscroll')){
-                    // that.data('iscroll').options=options;
-                    that.data('iscroll',new iScroll(this.get(0), options));
+                    that.data('iscroll').options=$.extend(that.data('iscroll').options,options
+                                                          );
+                    // that.data('iscroll',new iScroll(this.get(0), options));
 			              arguments.callee.object  = that.data('iscroll');
                 }
                 else{

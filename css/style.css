@@ -98,7 +98,7 @@ a:hover { color: #036; }
   padding-right: 5px;
 }
 #jqt ul li.arrow a.delete{
-  padding-right: 100px;
+  margin-right: 100px;
   white-space: nowrap;
 }
 #jqt ul li.arrow small.counter.color-red{
@@ -132,7 +132,12 @@ img {
   max-height:300px;
 }
 
-
+article {
+  margin-left:8px;
+  margin-right:8px;
+  margin-bottom:8px;
+  font-size:14px;
+}
 
 /**
  *

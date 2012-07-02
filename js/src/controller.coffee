@@ -136,10 +136,11 @@ RSSReader.itemNavController = Em.Object.create
     if read is undefined
       read = !@currentItem.get 'read'
     @currentItem.set 'read',read
-    key = @currentItem.get 'item_id'
-    store.get key,(entry)->
-      entry.read = read
-      store.save entry
+    if @currentItem.get('read') is false
+      key = @currentItem.get 'item_id'
+      store.get key,(entry)->
+        entry.read = read
+        store.save entry
   toggleUnread: ->
     @toggleRead(false)
 
@@ -203,11 +204,6 @@ RSSReader.subscriptionController = Em.ArrayController.create
   # query:''
   # add item to controller if it's not exists already
   addItem:(item) ->
-   
-    # itemToAdd=
-      # url:@get 'addUrl'
-      # title:@get 'query'
-    # if item
     itemToSave={}
     itemToSave.url=item.url
     itemToSave.title=item.title
@@ -215,7 +211,6 @@ RSSReader.subscriptionController = Em.ArrayController.create
     exists = @filterProperty('url',item.url).length
     if exists is 0
       itemToSave.key = item.url
-      subscriptionData.save itemToSave
       @insertAt 0, RSSReader.Subscription.create itemToSave
       #console.log @get 'content'
       return true
