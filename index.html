@@ -16,14 +16,14 @@
     <style type="text/css" media="screen">@import "js/libs/jqtouch/extensions/jqt.bars/themes/jqt/theme.css";</style>
     <style type="text/css" media="screen">@import "css/style.css";</style>
     <style type="text/css" media="screen">@import "css/jquery.mobile-1.1.0.min.css";</style>
-   
+    
     <script type="text/javascript" src="cordova-1.7.0.js"></script>
     
     <script src="js/libs/jqtouch/jqtouch/lib/zepto.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/libs/moment.min.js"></script>
     
-<script src="js/libs/jquery-1.7.2.min.js"></script>
-<script src="js/libs/jqtouch/jqtouch/jqtouch.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/libs/jquery-1.7.2.min.js"></script>
+    <script src="js/libs/jqtouch/jqtouch/jqtouch.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/libs/jqtouch/jqtouch/jqtouch-jquery.js" type="text/javascript" charset="utf-8"></script>
 
     <script src="js/libs/jqtouch/extensions/jqt.bars/iscroll-min.js" type="text/javascript" charset="utf-8"></script>
@@ -47,176 +47,215 @@
       touchMove=function(event){
       event.preventDefault();
       }
-</script>
-    <script type="text/javascript" src="js/libs/lawnchair-0.6.1.js"></script>
-</head>
-<body  ontouchmove="touchMove(event);">
-  <div class="ui-loader ui-corner-all ui-body-a ui-loader-default">
-<span class="ui-icon ui-icon-loading"></span><h1>loading</h1></div>
-  <!-- <div id="tabbar"> -->
-  <div id="tabbar">
-    <script type="text/x-handlebars">
-      <div>
-        {{#collection RSSReader.FooterNavBarView}}
-        <!-- {{#with content}} -->
-        <a {{bindAttr href="url"}} {{bindAttr mask="icon"}} {{bindAttr class="enabled"}}>
-          {{#if countName}}
-          <small class="badge right">{{count}}</small>
-          {{/if}}
-          <strong>{{title}}</strong>
-        </a>
-        <!-- {{/with}} -->
-        {{/collection}}
-      </div>
     </script>
-  </div>
-
-  <!-- jqt content -->
-  <div id="jqt">
-    <div id="main-view">
-      <div class="toolbar">
-        <h1>Green Reader</h1>
-        <a href="#addsubscription" class="flip add"> + </a>
-      </div>
-      <div class="s-scrollwrapper">
+    <script type="text/javascript" src="js/libs/lawnchair-0.6.1.js"></script>
+  </head>
+  <body  ontouchmove="touchMove(event);">
+    <div class="ui-loader ui-corner-all ui-body-a ui-loader-default">
+      <span class="ui-icon ui-icon-loading"></span><h1>loading</h1></div>
+    <!-- <div id="tabbar"> -->
+    <div id="tabbar">
+      <script type="text/x-handlebars">
         <div>
-          <script type="text/x-handlebars">
-          {{#unless RSSReader.subscriptionController.content.length}}
-          <div class="info">
-            <p>Press  the + button on right top to add some news source</p>
-          </div>
-          {{/unless}}
-            {{#collection RSSReader.SubscriptionView}}
-            <a class="swipeToDelete slide" {{action "getstore" on="click"}}>
-              {{{content.title}}}
-            </a>
-            <small class="counter color-red hide" {{action "delete" on="click"}}><p>Delete</p></small>
-            {{/collection}}
-          </script>
-        </div>
-      </div>
-
-      <script type="text/x-handlebars" data-template-name="listview">
-
-        <div class="toolbar">
-          <a href="#main-view" class="back">Back</a>
-          <h1>{{{RSSReader.subscriptionController.currentSubscription.title}}}</h1>
-          <a class="button" {{action "markAllRead" target="RSSReader.itemController"  on="click"}}>mark Read </a>
-          <!-- <a {{action "refresh" on="click"}} class="button">Refresh</a> -->
-        </div>
-        <div class="s-scrollwrapper pullable">
-          <div id="pulltoupdate" style="left:0px;">
-            <div id="pullDown" class="">
-			        <span class="pullDownIcon"></span><span class="pullDownLabel">Pull down to refresh...</span>
-		        </div>
-            {{#collection RSSReader.SummaryListView}}
-            {{content.title}}
-            <small style="width:auto;">{{dateFromNow}}</small>
-            <p>
-            <em style="white-space:normal;font-size: 14px;">
-                {{content.short_desc}}
-              </em>
-            </p>
-            {{/collection}}
-          </div>
-        </div>
-      </script>
-
-      <script type="text/x-handlebars" data-template-name="current">
-        <div class="toolbar">
-          <a href="#list-view" class="back">Back</a>
-          <h1>{{{RSSReader.subscriptionController.currentSubscription.title}}}</h1>
-        </div>
-        <div class="s-scrollwrapper swipe">
-          <div>
-             <article>
-            {{#if RSSReader.itemNavController.currentItem}}
-            {{#view RSSReader.EntryItemView}}
-            <h1>{{content.title}}</h1>
-            <hr/>
-            <div class="author">
-              {{#if content.pub_author}}
-              by {{content.pub_author}}
-              {{/if}}
-            on {{dateFromNow}}</div>
-            <hr/>
-           
-                {{{content.content}}}
-            
-            {{/view}}
+          {{#collection RSSReader.FooterNavBarView}}
+          <!-- {{#with content}} -->
+          <a {{bindAttr href="url"}} {{bindAttr mask="icon"}} {{bindAttr class="enabled"}}>
+            {{#if countName}}
+            <small class="badge right">{{count}}</small>
             {{/if}}
-              </article>
-          </div>
+            <strong>{{title}}</strong>
+          </a>
+          <!-- {{/with}} -->
+          {{/collection}}
         </div>
       </script>
     </div>
-    <div id="addsubscription">
-      <div  class="toolbar">
-        <a href="#main-view" class="back">back</a>
-        <h1>Add Subscription</h1>
-      </div>
-      <div class="s-scrollwrapper">
-        <div>
-        <script type="text/x-handlebars">
-          <h1>Input Keywords for Search or Feed Link(including "http")</h1>
-          <form id="search-news" method="get">
-            <div class="ui-input-search ui-shadow-inset ui-btn-corner-all ui-btn-shadow ui-icon-searchfield ui-body-c">
-              <input type="search" name="q" data-type="search" class="ui-input-text ui-body-c"  placeholder="Keywords or Direct URL">
+
+    <!-- jqt content -->
+    <div id="jqt">
+      <div id="main-view">
+        <div class="toolbar">
+          <h1>Green Reader</h1>
+          <a href="#addsubscription" class="flip add"> + </a>
+        </div>
+        <div class="s-scrollwrapper">
+          <div>
+            <script type="text/x-handlebars">
+              {{#unless RSSReader.subscriptionController.content.length}}
+              <div class="info">
+                <p>Press  the + button on right top to add some news source</p>
+              </div>
+              {{/unless}}
+              {{#collection RSSReader.SubscriptionView}}
+              <a class="swipeToDelete slide" {{action "getstore" on="click"}}>
+                {{{content.title}}}
+              </a>
+              <small class="counter color-red hide" {{action "delete" on="click"}}><p>Delete</p></small>
+              {{/collection}}
+            </script>
+          </div>
+        </div>
+
+        <script type="text/x-handlebars" data-template-name="listview">
+
+          <div class="toolbar">
+            <a href="#main-view" class="back">Back</a>
+            <h1>{{{RSSReader.subscriptionController.currentSubscription.title}}}</h1>
+            <a class="button" {{action "markAllRead" target="RSSReader.itemController"  on="click"}}>mark Read </a>
+            <!-- <a {{action "refresh" on="click"}} class="button">Refresh</a> -->
+          </div>
+          <div class="s-scrollwrapper pullable">
+            <div id="pulltoupdate" style="left:0px;">
+              <div id="pullDown" class="">
+			          <span class="pullDownIcon"></span><span class="pullDownLabel">Pull down to refresh...</span>
+		          </div>
+              {{#collection RSSReader.SummaryListView}}
+              {{content.title}}
+              <small style="width:auto;">{{dateFromNow}}</small>
+              <p>
+                <em style="white-space:normal;font-size: 14px;">
+                  {{content.short_desc}}
+                </em>
+              </p>
+              {{/collection}}
             </div>
-          </form>
-          {{#collection RSSReader.QueryResultView}}
-          <p> {{{content.title}}}</p>
-          <em>{{content.url}}</em>
-          {{/collection}}
+          </div>
         </script>
-        <br>
-        <a class="grayButton flip" href="#main-view">
-          Cancel
-        </a>
-      </div> </div> 
-    </div>
-    
-    <div id="settings-view">
-      <div class="toolbar">
-        <h1>Settings</h1>
+
+        <script type="text/x-handlebars" data-template-name="current">
+          <div class="toolbar">
+            <a href="#list-view" class="back">Back</a>
+            <h1>{{{RSSReader.subscriptionController.currentSubscription.title}}}</h1>
+          </div>
+          <div class="s-scrollwrapper swipe">
+            <div>
+              <article>
+                {{#if RSSReader.itemNavController.currentItem}}
+                {{#view RSSReader.EntryItemView}}
+                <h1>{{content.title}}</h1>
+                <hr/>
+                <div class="author">
+                  {{#if content.pub_author}}
+                  by {{content.pub_author}}
+                  {{/if}}
+                  on {{dateFromNow}}</div>
+                <hr/>
+                
+                {{{content.content}}}
+                
+                {{/view}}
+                {{/if}}
+              </article>
+            </div>
+          </div>
+        </script>
+      </div>
+      <div id="addsubscription">
+        <div  class="toolbar">
+          <a href="#main-view" class="back">back</a>
+          <h1>Add Subscription</h1>
+        </div>
+        <div class="s-scrollwrapper">
+          <div>
+            <script type="text/x-handlebars">
+              <h1>Input Keywords for Search or Feed Link(including "http")</h1>
+              <form id="search-news" method="get">
+                <div class="ui-input-search ui-shadow-inset ui-btn-corner-all ui-btn-shadow ui-icon-searchfield ui-body-c">
+                  <input type="search" name="q" data-type="search" class="ui-input-text ui-body-c"  placeholder="Keywords or Direct URL">
+                </div>
+              </form>
+              {{#collection RSSReader.QueryResultView}}
+              <p> {{{content.title}}}</p>
+              <em>{{content.url}}</em>
+              {{/collection}}
+            </script>
+            <br>
+            <a class="grayButton flip" href="#main-view">
+              Cancel
+            </a>
+        </div> </div> 
       </div>
       
-      <div class="s-scrollwrapper">
-        <div>
-        <div id="themes">
-                
-                    <h1>Themes</h1>
-                   
-             
-                <ul class="rounded">
-                </ul>
+      <div id="settings-view">
+        <div class="toolbar">
+          <h1>Settings</h1>
+        </div>
+        
+        <div class="s-scrollwrapper">
+          <div>
+            <div id="themes">
+              
+              <h1>Themes</h1>
+              
+              
+              <ul class="rounded">
+              </ul>
             </div>
-<h1>Clear</h1>
-        <ul class="rounded">
-          <li><a href="#" onclick="RSSReader.clearStore();">Clear All News Storage</a></li>
-          <li><a href="#" onclick="javascript:localStorage.clear();window.location.reload();">Reset</a></li>
-                    
-        </ul>
+            <h1>Clear</h1>
+            <ul class="rounded">
+              <li><a href="#" onclick="RSSReader.clearStore();">Clear All News Storage</a></li>
+              <li><a href="#" onclick="javascript:localStorage.clear();window.location.reload();">Reset</a></li>
+              
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div id="about-view">
-      <div class="toolbar">
-        <h1>About</h1>
-      </div>
-      <div class="scroll">
-        <ul>
-          <li><a href="jqtouch.html">jQTouch</a></li>
-        </ul>
-      </div>
-    </div>
+      <div id="about-view">
+        <div class="toolbar">
+          <h1>About</h1>
+        </div>
+        <div class="s-scrollwrapper">
+          <div>
+            <article>
+            <h2>Green Reader</h2>
 
-    <!-- <script src="js/dev-helper.js"></script> -->
-    <!-- <script src="js/plugins.js"></script> -->
-    <script src="js/init.js"></script>
-    <!-- <script src="js/jqm.js"></script> -->
-    <script src="js/app.js"></script>
-    <!-- <script src="js/libs/jqtouch/extensions/jqt.bars/jqt.bars.js" type="text/javascript" charset="utf-8"></script> -->
-</body>
+            <hr>
+
+            <p><strong>Green</strong> is best color for reading<em>(which I think so, and if you don’t like it so much, change the color at will)</em>, so I pick the color green for the main theme of my App.</p>
+
+            <p>And I name it <strong>Green Reader</strong></p>
+
+
+            <h2>Features</h2>
+
+            <hr>
+
+            <h3>You can …</h3>
+
+            <ol>
+              <li>Add Feed by keywords or direct URL</li>
+              <li>Pull Down to Refresh List(like app in iOS dose)</li>
+              <li>Swipe left/right to Navigate</li>
+              <li>Swipe to delete</li>
+              <li>Sort News items with ‘Read’,‘Unread’,‘Starred’,‘All’</li>
+              <li>Give star to News you like</li>
+              <li>Switch Theme</li>
+              <li>Open News in external browser</li>
+              <li>Manually reset local storage</li>
+            </ol>
+
+
+            <h3>It has…</h3>
+
+            <ol>
+              <li>iOS style tabbar with count bubble</li>
+              <li>3 themes - GreenReader default,jqtouch,apple ios</li>
+              <li>Cool Animation in iOS and webkit browser like chrome and safari</li>
+            </ol>
+
+
+            <p><code>It's available both in iOS and Android(and of course Desktop,its written in pure html5 and js, just open it with Chrome or Safari)</code></p>
+          </article>
+</div>
+        </div>
+      </div>
+
+      <!-- <script src="js/dev-helper.js"></script> -->
+      <!-- <script src="js/plugins.js"></script> -->
+      <script src="js/init.js"></script>
+      <!-- <script src="js/jqm.js"></script> -->
+      <script src="js/app.js"></script>
+      <!-- <script src="js/libs/jqtouch/extensions/jqt.bars/jqt.bars.js" type="text/javascript" charset="utf-8"></script> -->
+  </body>
 </html>
